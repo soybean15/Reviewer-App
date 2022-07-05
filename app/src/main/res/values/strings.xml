@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">Reviewer App</string>
+    <string name="subject_timestamp">Last Updated: %1$s</string>
+</resources>
