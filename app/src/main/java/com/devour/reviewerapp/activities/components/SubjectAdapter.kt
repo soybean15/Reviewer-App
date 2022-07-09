@@ -1,20 +1,43 @@
 package com.devour.reviewerapp.activities.components
 
 
+import android.content.Context
 import android.graphics.drawable.GradientDrawable
 import android.util.Log
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
+import android.view.animation.Animation
+import android.view.animation.AnimationUtils
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import com.devour.reviewerapp.R
+import com.devour.reviewerapp.activities.SubjectActivity
 import com.devour.reviewerapp.data.data_source.AppData
 import com.devour.reviewerapp.data.relationship.SubjectWithTerms
+import com.devour.reviewerapp.data.relationship.TermWithTopics
+import com.devour.reviewerapp.model.Subject
 import java.text.DateFormat
+import kotlin.contracts.contract
 
-class SubjectAdapter (private val subjectWithTerms: MutableList<SubjectWithTerms>):
+
+interface OnSubjectClickListener{
+    fun onSubjectEdit(index: Int)
+    fun onSubjectDelete(index: Int)
+    fun onSubjectClick(subjectWithTerms:SubjectWithTerms)
+    fun onAnimateSubjectClick(view: View,index: Int){
+
+    }
+}
+
+class SubjectAdapter (private val subjectWithTerms: MutableList<SubjectWithTerms>,listenerContext: OnSubjectClickListener):
     RecyclerView.Adapter<SubjectViewHolder>(){
+
+    private var myInterface:OnSubjectClickListener = listenerContext
+
+
 
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SubjectViewHolder {
@@ -27,27 +50,31 @@ class SubjectAdapter (private val subjectWithTerms: MutableList<SubjectWithTerms
     override fun onBindViewHolder(holder: SubjectViewHolder, position: Int) {
         val subjectWithTerms = subjectWithTerms[position]
 
-        val shape = GradientDrawable()
-        shape.cornerRadius = 40f
-        shape.setColor(subjectWithTerms.subject.color)
 
-        val textView:TextView = holder.itemView.findViewById(R.id.titleTextView)
-        val main:LinearLayout = holder.itemView.findViewById(R.id.item_mainLayout)
-        val timeStampTextView:TextView = holder.itemView.findViewById(R.id.timeStampTextView)
+        holder.bind(subjectWithTerms)
 
-        val date = DateFormat.getDateTimeInstance().format(subjectWithTerms.subject.timeStamp)
+        myInterface.onAnimateSubjectClick(holder.itemView,position)
 
-        val text = holder.itemView.context.getString(R.string.subject_timestamp,date )
-        timeStampTextView.text =text
+        holder.itemView.setOnClickListener {
+            myInterface.onSubjectClick(subjectWithTerms)
+        }
 
-        Log.i("sizeTag", "index $position, name: ${subjectWithTerms.subject.name }")
-        textView.text = subjectWithTerms.subject.name
-        main.setBackground(shape)
+
 
 
     }
+
+
+
 
     override fun getItemCount(): Int {
         return subjectWithTerms.size
     }
+
+
+
+
+
+
+
 }

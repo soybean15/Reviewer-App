@@ -1,6 +1,7 @@
 package com.devour.reviewerapp.data.data_source
 
 import android.content.Context
+import android.util.Log
 import androidx.core.content.ContextCompat
 import com.devour.reviewerapp.R
 import com.devour.reviewerapp.model.*
@@ -19,13 +20,19 @@ class AppData {
         fun initialize(context: Context){
 
             val subject1 = Subject("Subject1", System.currentTimeMillis(), ContextCompat.getColor(context, R.color.blue_1))
+            Log.i("myTag","Subject: ${subject1.subjectId}" )
+
+
             val term1 = Term("Term1", subjectId = subject1.subjectId, timeStamp = System.currentTimeMillis(), subject1.color)
+            Log.i("myTag","Subject: ${subject1.subjectId} Term: ${term1.termId}" )
+
             val topic1 = Topic("Topic 1", term1.termId, term1.subjectId, timeStamp = System.currentTimeMillis(),subject1.color)
+            Log.i("myTag","Subject: ${subject1.subjectId} Term: ${term1.termId} Topic: ${topic1.topicId}"   )
             val item = Item("Item 1", "Sample Description", topic1.topicId, topic1.termId, topic1.subjectId, timeStamp = System.currentTimeMillis(), color = subject1.color)
-
+            Log.i("myTag","Subject: ${subject1.subjectId} Term: ${term1.termId} Topic: ${topic1.topicId} Item: ${item.itemId}"   )
             val topicWithItems = TopicWithItems(topic1, mutableListOf(item))
-
             val termWithTopics = TermWithTopics(term1, mutableListOf(topicWithItems))
+
 
             val subjectWithTerms = SubjectWithTerms(subject1, mutableListOf(termWithTopics))
 

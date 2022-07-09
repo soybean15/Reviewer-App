@@ -24,6 +24,10 @@
     <color name="green_4">#235024</color>
     <color name="green_5">#003A01</color>
 
+    <color name="yellow_1">#756D2B</color>
+    <color name="yellow_2">#423C10</color>
+    <color name="yellow_3">#373104</color>
+
     <array name="random_colors">
         <item>@color/blue_1</item>
         <item>@color/blue_2</item>
@@ -42,6 +46,10 @@
         <item>@color/green_3</item>
         <item>@color/green_4</item>
         <item>@color/green_5</item>
+
+        <item>@color/yellow_1</item>
+        <item>@color/yellow_2</item>
+        <item>@color/yellow_3</item>
 
 
 

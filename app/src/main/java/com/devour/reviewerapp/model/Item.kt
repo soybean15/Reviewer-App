@@ -2,6 +2,7 @@ package com.devour.reviewerapp.model
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import java.io.Serializable
 
 
 @Entity
@@ -13,7 +14,7 @@ class Item (
     val subjectId: Int,
     val timeStamp:Long,
     val color:Int
-){
+):Serializable{
     @PrimaryKey(autoGenerate = true)
     var itemId = 0
 }

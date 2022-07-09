@@ -1,83 +1,123 @@
 package com.devour.reviewerapp.activities
 
-import android.annotation.SuppressLint
 import android.app.Activity
+import android.content.Intent
+import android.graphics.drawable.GradientDrawable
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.os.Handler
 import android.text.Editable
 import android.text.InputType
 import android.text.TextWatcher
 import android.util.Log
+import android.view.Gravity
 import android.view.KeyEvent
 import android.view.View
 import android.view.ViewGroup
-import android.view.animation.ScaleAnimation
+import android.view.animation.AnimationUtils
 import android.view.animation.TranslateAnimation
 import android.view.inputmethod.InputMethodManager
 
 import android.widget.EditText
+import android.widget.FrameLayout
 import android.widget.LinearLayout
-import android.widget.RelativeLayout
-import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.core.view.marginStart
-import androidx.core.view.setMargins
+import androidx.recyclerview.widget.DividerItemDecoration
+import androidx.recyclerview.widget.ItemTouchHelper
 
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.devour.reviewerapp.R
+import com.devour.reviewerapp.activities.components.OnSubjectClickListener
 import com.devour.reviewerapp.activities.components.SubjectAdapter
+import com.devour.reviewerapp.activities.components.SwipeHelper
 import com.devour.reviewerapp.data.data_source.AppData
 import com.devour.reviewerapp.data.data_source.ReviewerDatabase
 import com.devour.reviewerapp.data.relationship.SubjectWithTerms
-import com.devour.reviewerapp.model.EmptyFieldException
 import com.devour.reviewerapp.model.Subject
-import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.*
 import java.io.File
-import java.lang.Exception
+import java.io.Serializable
+
+import kotlin.Exception
 
 
-class SubjectActivity : AppCompatActivity() {
+class SubjectActivity : AppCompatActivity() ,OnSubjectClickListener{
 
     private var subjectAdapter:SubjectAdapter? = null
+    private var subjectRecyclerView:RecyclerView?=null
+    private var _position = -1
+
+
+    private var subjectWithTerms = mutableListOf<SubjectWithTerms>()
+
+
+    override fun onAnimateSubjectClick(view: View,index: Int) {
+
+        if(index==_position){
+            val anim = AnimationUtils.loadAnimation(view.context, R.anim.slide_in)
+            view.startAnimation(anim)
+
+        }
+
+    }
+
+    override fun onSubjectClick(subjectWithTerms: SubjectWithTerms) {
+
+        val bundle = Bundle()
+        bundle.putSerializable("subjectWithTerms", subjectWithTerms )
+        val intent = Intent(this, ItemsActivity::class.java)
+        intent.putExtra("bundle", bundle)
+        startActivity(intent)
+
+
+
+        overridePendingTransition(R.anim.slide_in_right,R.anim.slide_out_left)
+    }
 
 
 
 
 
+
+    var offSearch = false
     var _hasFocus = true
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_subject)
 
-        val subjectRecyclerView:RecyclerView = findViewById(R.id.subjectRecyclerView)
+
+        subjectRecyclerView = findViewById(R.id.subjectRecyclerView)
+
 
 
         val layoutManager:RecyclerView.LayoutManager = LinearLayoutManager(this, )
 
-        subjectRecyclerView.layoutManager =layoutManager
+        subjectRecyclerView!!.layoutManager =layoutManager
 
 
 
 
-        AppData.initialize(this)
-        subjectAdapter = SubjectAdapter(AppData.subject )
-        subjectRecyclerView.adapter = subjectAdapter
+
+        subjectWithTerms=AppData.subject
+        subjectAdapter = SubjectAdapter(subjectWithTerms,this )
+        subjectRecyclerView!!.adapter = subjectAdapter
+
+        setUpRecyclerView()
+
+        subjectRecyclerView!!.scheduleLayoutAnimation()
+
 
         AppData.db = ReviewerDatabase.getDataBase(this)
 
 
 
-        dbConnect(subjectRecyclerView)
+        dbConnect()
 
-        searchItem(subjectRecyclerView)
+        searchItem()
 
 
 
@@ -85,6 +125,32 @@ class SubjectActivity : AppCompatActivity() {
 
 
     }
+
+
+    private fun setUpRecyclerView() {
+        subjectRecyclerView!!.addItemDecoration(DividerItemDecoration(this, DividerItemDecoration.VERTICAL))
+        subjectRecyclerView!!.layoutManager = LinearLayoutManager(this)
+
+        val itemTouchHelper = ItemTouchHelper(object : SwipeHelper( subjectRecyclerView!!) {
+            override fun instantiateUnderlayButton(position: Int): List<UnderlayButton> {
+
+                val deleteButton = deleteButton(position)
+                val editButton = editButton(position)
+                //                val markAsUnreadButton = markAsUnreadButton(position)
+//                val archiveButton = archiveButton(position)
+//                when (position) {
+//                    1 -> buttons = listOf(deleteButton)
+//                    2 -> buttons = listOf(deleteButton, markAsUnreadButton)
+//                    3 -> buttons = listOf(deleteButton, markAsUnreadButton, archiveButton)
+//                    else -> Unit
+//                }
+                return listOf(deleteButton, editButton)
+            }
+        })
+
+        itemTouchHelper.attachToRecyclerView(subjectRecyclerView!!)
+    }
+
 
 
 
@@ -98,27 +164,58 @@ class SubjectActivity : AppCompatActivity() {
 
 
     fun createSubject(v: View){
-        val subjectRecyclerView:RecyclerView = findViewById(R.id.subjectRecyclerView)
+
+
+
 
         val builder = AlertDialog.Builder(this)
+        val linearLayout= LinearLayout(this)
+
+        val params = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+        params.setMargins(40,0,40,0)
+
 
 
         builder.setTitle("New Subject")
         builder.setMessage("Enter Subject Name")
 
 
-        val myInput = EditText(this)
-        myInput.inputType = InputType.TYPE_CLASS_TEXT
 
-        builder.setView(myInput)
+
+        val myInput = EditText(this)
+
+
+
+
+        myInput.layoutParams = params
+        myInput.height = getPixelDensity(40f)
+        myInput.setPadding(40,0,20,0)
+
+        val shape = GradientDrawable()
+        shape.cornerRadius = 40f
+
+
+
+        shape.setStroke(2,resources.getColor(R.color.gray) )
+
+
+        myInput.background = shape
+
+
+        linearLayout.addView(myInput)
+
+
+
+
+        builder.setView(linearLayout)
 
         builder.setPositiveButton("Save") {dialogue, which->
 
             val subjectName:String = myInput.text.toString()
 
             if (subjectName.isBlank()) {
-                snackBar(v,"Subject Name is Empty")
-
+               // snackBar(v,"Subject Name is Empty")
+                snackBar(findViewById(android.R.id.content),"Subject Name is Empty")
             }else{
 
 
@@ -127,24 +224,49 @@ class SubjectActivity : AppCompatActivity() {
                 val newSubject = Subject(subjectName,System.currentTimeMillis(), resources.getIntArray(R.array.random_colors).random())
                 val newSubjectWithTerms = SubjectWithTerms(newSubject, mutableListOf())
 
-                AppData.subject.add(newSubjectWithTerms)
+                subjectWithTerms.add(newSubjectWithTerms)
 
                 CoroutineScope(Dispatchers.IO).launch {
+                    try{
 
-                    AppData.db.reviewerDao().insertSubject(newSubject)
-                    AppData.subject.sortByDescending { it.subject.timeStamp }
+                       val task=  listOf(async {
+                            AppData.db.reviewerDao().insertSubject(newSubject)
+                        },async {
+                            subjectWithTerms  = AppData.db.reviewerDao().getSubjectWithTerms()
+                        })
+                        task.joinAll()
 
-                    withContext(Dispatchers.Main){
-                        Log.i("sizeTag",AppData.subject.get(AppData.subject.size-1).subject.name)
+                        subjectWithTerms.sortByDescending { it.subject.timeStamp }
 
 
-                        subjectAdapter = SubjectAdapter(AppData.subject)
-                        subjectRecyclerView.adapter = subjectAdapter
+
+                        withContext(Dispatchers.Main){
 
 
-                        //subjectAdapter!!.notifyItemInserted(AppData.subject.count())
-                      //  subjectRecyclerView.scrollToPosition(0)
+
+
+                            subjectAdapter = SubjectAdapter(subjectWithTerms,this@SubjectActivity)
+                            subjectRecyclerView!!.adapter = subjectAdapter
+
+                            // subjectAdapter!!.notifyDataSetChanged()
+
+
+                            _position=0
+
+                            subjectAdapter!!.notifyItemInserted(0)
+
+
+
+                            //  subjectRecyclerView.scrollToPosition(0)
+                        }
+
+
+                    }catch (e:Exception){
+
                     }
+
+
+             //
 
 
                 }
@@ -168,18 +290,147 @@ class SubjectActivity : AppCompatActivity() {
         dialouge.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(resources.getColor(R.color.blue_1))
     }
 
-    private fun dbConnect(recyclerView: RecyclerView){
 
-        if(databaseFileExist()){//read content
-            loadSubjects(recyclerView)
+    fun getPixelDensity(num:Float):Int{
+        val dpRatio = this.resources.displayMetrics.density
+        return (num*dpRatio).toInt()
+    }
 
-        }else{//first Time opening the app
-            AppData.initialize(this)
-            subjectAdapter = SubjectAdapter(AppData.subject)
-            recyclerView.adapter = subjectAdapter
+
+
+
+
+    fun editSubject(position: Int,name: String, timeStamp:Long, subjectId:Int){
+
+
+        val builder = AlertDialog.Builder(this)
+
+        val linearLayout= LinearLayout(this)
+
+
+        builder.setTitle("Edit Subject")
+        builder.setMessage("Enter New Subject Name")
+
+
+        val myInput = EditText(this)
+
+        val params = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+        params.setMargins(40,0,40,0)
+
+
+
+        myInput.layoutParams = params
+        myInput.height = getPixelDensity(40f)
+        myInput.setPadding(40,0,20,0)
+//        myInput.inputType = InputType.TYPE_CLASS_TEXT
+
+
+        val shape = GradientDrawable()
+        shape.cornerRadius = 40f
+
+
+
+        shape.setStroke(2,resources.getColor(R.color.gray) )
+
+
+        myInput.background = shape
+
+
+
+        myInput.setText(name)
+        myInput.setSelectAllOnFocus(true)
+
+        linearLayout.addView(myInput)
+
+        builder.setView(linearLayout)
+
+        builder.setPositiveButton("Save") {dialogue, which->
 
             CoroutineScope(Dispatchers.IO).launch {
-                for (groupWithItems in AppData.subject) {
+
+                try {
+//
+//                   val task = listOf(async {
+//                       AppData.db.reviewerDao().updateSubject(
+//                           myInput.text.toString(),
+//                           timeStamp,
+//                           subjectId
+//                       )
+//
+//                   },async {
+//                        AppData.db.reviewerDao().getSubjectWithTerms()
+//                   })
+//
+//                    task.joinAll()
+
+                    AppData.db.reviewerDao().updateSubject(
+                           myInput.text.toString(),
+                           timeStamp,
+                           subjectId
+                       )
+
+
+
+                       subjectWithTerms[position].subject.name = myInput.text.toString()
+                       subjectWithTerms[position].subject.timeStamp =timeStamp
+                       subjectWithTerms.sortByDescending { it.subject.timeStamp }
+
+
+
+                       withContext(Dispatchers.Main){
+
+
+
+                           Log.i("Edit", "position:$position, nam:$name")
+                           subjectAdapter = SubjectAdapter(subjectWithTerms,this@SubjectActivity)
+                           subjectRecyclerView!!.adapter = subjectAdapter
+                           subjectAdapter!!.notifyItemChanged(0)
+                           //subjectAdapter!!.notifyDataSetChanged()
+
+                           //subjectRecyclerView.scheduleLayoutAnimation()
+
+
+
+                           //  subjectRecyclerView.scrollToPosition(0)
+                       }
+
+
+                }catch (e:Exception){
+                    snackBar(findViewById(android.R.id.content),e.toString())
+                }
+
+
+
+
+            }
+
+
+
+
+
+        }
+        builder.setNegativeButton("Cancel") {dialogue, which->
+
+        }
+
+        val dialouge : AlertDialog =builder.create()
+        dialouge.show()
+        dialouge.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(resources.getColor(R.color.blue_1))
+        dialouge.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(resources.getColor(R.color.blue_1))
+    }
+
+    private fun dbConnect(){
+
+        if(databaseFileExist()){//read content
+            loadSubjects()
+
+        }else{//first Time opening the app
+            //AppData.initialize(this)
+            subjectAdapter = SubjectAdapter(subjectWithTerms,this)
+            subjectRecyclerView!!.adapter = subjectAdapter
+
+            CoroutineScope(Dispatchers.IO).launch {
+                for (groupWithItems in subjectWithTerms) {
                     AppData.db.reviewerDao().insertSubject(groupWithItems.subject)
 
 
@@ -189,22 +440,24 @@ class SubjectActivity : AppCompatActivity() {
     }
 
 
-    fun loadSubjects(recyclerView: RecyclerView){
+    private fun loadSubjects(){
         CoroutineScope(Dispatchers.IO).launch {
-            AppData.subject =AppData.db.reviewerDao().getSubjectWithTerms()
-            AppData.subject.sortByDescending { it.subject.timeStamp }
+            subjectWithTerms =AppData.db.reviewerDao().getSubjectWithTerms()
+            subjectWithTerms.sortByDescending { it.subject.timeStamp }
 
             withContext(Dispatchers.Main){
-                subjectAdapter = SubjectAdapter(AppData.subject)
-                recyclerView.adapter = subjectAdapter
+                subjectAdapter = SubjectAdapter(subjectWithTerms,this@SubjectActivity)
+                subjectRecyclerView!!.adapter = subjectAdapter
+                subjectRecyclerView!!.scheduleLayoutAnimation()
             }
+            subjectRecyclerView!!.scheduleLayoutAnimation()
         }
     }
 
-    fun searchItem( recyclerView:RecyclerView){
+    fun searchItem(){
         val searchTextView:EditText = findViewById(R.id.searchTextView)
 
-        backSpaceEvent(searchTextView)
+        keyPressEvent(searchTextView)
 
         searchTextView.setOnFocusChangeListener{_,hasFocus->
 
@@ -250,7 +503,7 @@ class SubjectActivity : AppCompatActivity() {
 
 
 
-                    searchSubject(searchTextView, recyclerView)
+                    searchSubject(searchTextView)
 
 
 
@@ -267,18 +520,20 @@ class SubjectActivity : AppCompatActivity() {
 
     }
 
-    fun searchSubject( text: EditText, recyclerView: RecyclerView){
+    fun searchSubject( text: EditText){
         val name :String = text.text.toString()
         CoroutineScope(Dispatchers.IO).launch {
-            val subjectWithTerms = AppData.db.reviewerDao().getSubjects(name)
+             subjectWithTerms = AppData.db.reviewerDao().getSubjects(name)
+
             withContext(Dispatchers.Main){
                 if(subjectWithTerms.size==0){
-                    snackBar(recyclerView, "No Item Found")
-                }else{
-                    subjectWithTerms.sortByDescending { it.subject.timeStamp }
-                    subjectAdapter = SubjectAdapter(subjectWithTerms)
-                    recyclerView.adapter = subjectAdapter
+                    snackBar(  subjectRecyclerView!!, "No Item Found")
                 }
+                    subjectWithTerms.sortByDescending { it.subject.timeStamp }
+                    subjectAdapter = SubjectAdapter(subjectWithTerms,this@SubjectActivity)
+                    subjectRecyclerView!!.adapter = subjectAdapter
+                subjectRecyclerView!!.scheduleLayoutAnimation()
+
 
             }
         }
@@ -289,24 +544,9 @@ class SubjectActivity : AppCompatActivity() {
 
 
 
+    fun keyPressEvent(editText: EditText, ){
 
 
-
-//    fun saveColors(){
-//        val color = resources.obtainTypedArray(R.array.random_colors).use{ta->
-//            IntArray(ta.length()){
-//                ta.getColor(it,0)
-//            }
-//
-//        }
-//
-//
-//    }
-
-
-    fun backSpaceEvent(editText: EditText, ){
-
-        val subjectRecyclerView:RecyclerView = findViewById(R.id.subjectRecyclerView)
 
 
 
@@ -316,33 +556,20 @@ class SubjectActivity : AppCompatActivity() {
             }
 
             override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
-                searchSubject( editText, subjectRecyclerView)
+
+
             }
 
             override fun afterTextChanged(p0: Editable?) {
+                offSearch = !editText.text.isNotEmpty()
+                searchSubject( editText)
 
             }
 
         })
 
 
-
-//       view.setOnKeyListener { _, keyCode, keyEvent ->
-//
-//           if(keyCode == KeyEvent.KEYCODE_DEL){
-//
-//
-//               if(view.text.isEmpty()){
-//                   loadSubjects(subjectRecyclerView)
-//                   snackBar(view,"TextField is empty")
-//               }
-//
-//
-//           }
-//           false
-//       }
     }
-
 
 
 
@@ -357,6 +584,104 @@ class SubjectActivity : AppCompatActivity() {
 
 
     }
+
+
+
+
+
+
+
+
+        private fun deleteButton(position: Int) : SwipeHelper.UnderlayButton {
+        return SwipeHelper.UnderlayButton(
+            this,
+            "Delete",
+            13.0f,
+            android.R.color.holo_red_light,
+            object : SwipeHelper.UnderlayButtonClickListener {
+                override fun onClick() {
+                    _position=position+1
+
+                    deleteSubject(position)
+
+
+                }
+            })
+    }
+
+    private fun editButton(position: Int) : SwipeHelper.UnderlayButton {
+        return SwipeHelper.UnderlayButton(
+            this,
+            "Edit",
+            14.0f,
+            android.R.color.holo_blue_light,
+            object : SwipeHelper.UnderlayButtonClickListener {
+                override fun onClick() {
+
+                    val name = subjectWithTerms[position].subject.name
+                    val timeStamp =System.currentTimeMillis()
+                    val subjectId = subjectWithTerms[position].subject.subjectId
+
+                    _position=0
+
+                    editSubject(
+                        position,
+                        name,
+                        timeStamp,
+                        subjectId
+                    )
+
+                }
+            })
+    }
+
+
+
+
+    fun deleteSubject(index: Int){
+        onSubjectDelete(index)
+    }
+
+
+
+
+    override fun onSubjectEdit(index: Int) {
+
+    }
+
+
+
+
+    override fun onSubjectDelete(index: Int) {
+
+
+
+
+        var subjectId = subjectWithTerms[index].subject.subjectId
+
+
+        CoroutineScope(Dispatchers.IO).launch {
+
+            AppData.db.reviewerDao().deleteGroup(subjectId)
+
+
+
+        }
+        subjectWithTerms.removeAt(index)
+
+       subjectAdapter!!.notifyItemRemoved(index)
+      //  subjectAdapter!!.notifyDataSetChanged()
+
+
+
+
+    }
+
+
+
+
+
+
 
 
 }

@@ -3,12 +3,28 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="..\:/Users/PC/AndroidStudioProjects/ReviewerApp/app/src/main/res/drawable/ic_baseline_add_24.xml" value="0.3675" />
+        <entry key="..\:/Users/PC/AndroidStudioProjects/ReviewerApp/app/src/main/res/drawable/ic_baseline_search_24.xml" value="0.3675" />
+        <entry key="..\:/Users/PC/AndroidStudioProjects/ReviewerApp/app/src/main/res/drawable/ic_launcher_add_background.xml" value="0.3675" />
+        <entry key="..\:/Users/PC/AndroidStudioProjects/ReviewerApp/app/src/main/res/drawable/ic_launcher_add_foreground.xml" value="0.3675" />
+        <entry key="..\:/Users/PC/AndroidStudioProjects/ReviewerApp/app/src/main/res/drawable/ic_launcher_foreground.xml" value="0.3675" />
+        <entry key="..\:/Users/PC/AndroidStudioProjects/ReviewerApp/app/src/main/res/drawable/ic_launcher_search_foreground.xml" value="0.3675" />
+        <entry key="..\:/Users/PC/AndroidStudioProjects/ReviewerApp/app/src/main/res/drawable/ic_launcher_view_background.xml" value="0.3675" />
+        <entry key="..\:/Users/PC/AndroidStudioProjects/ReviewerApp/app/src/main/res/drawable/ic_launcher_view_foreground.xml" value="0.3675" />
+        <entry key="..\:/Users/PC/AndroidStudioProjects/ReviewerApp/app/src/main/res/drawable/rounded_corner_edit_textview.xml" value="0.3665" />
         <entry key="..\:/Users/PC/AndroidStudioProjects/ReviewerApp/app/src/main/res/drawable/rounded_corner_textview.xml" value="0.253" />
         <entry key="..\:/Users/PC/AndroidStudioProjects/ReviewerApp/app/src/main/res/drawable/semester_spinner.xml" value="0.1" />
+        <entry key="..\:/Users/PC/AndroidStudioProjects/ReviewerApp/app/src/main/res/layout/activity_items.xml" value="0.25" />
         <entry key="..\:/Users/PC/AndroidStudioProjects/ReviewerApp/app/src/main/res/layout/activity_main.xml" value="0.33" />
         <entry key="..\:/Users/PC/AndroidStudioProjects/ReviewerApp/app/src/main/res/layout/activity_subject.xml" value="0.17831813576494426" />
+        <entry key="..\:/Users/PC/AndroidStudioProjects/ReviewerApp/app/src/main/res/layout/fragment_add.xml" value="0.25" />
+        <entry key="..\:/Users/PC/AndroidStudioProjects/ReviewerApp/app/src/main/res/layout/fragment_search.xml" value="0.18802083333333333" />
+        <entry key="..\:/Users/PC/AndroidStudioProjects/ReviewerApp/app/src/main/res/layout/fragment_view.xml" value="0.18802083333333333" />
+        <entry key="..\:/Users/PC/AndroidStudioProjects/ReviewerApp/app/src/main/res/layout/item_layout.xml" value="0.19791666666666666" />
         <entry key="..\:/Users/PC/AndroidStudioProjects/ReviewerApp/app/src/main/res/layout/item_row.xml" value="0.25" />
+        <entry key="..\:/Users/PC/AndroidStudioProjects/ReviewerApp/app/src/main/res/layout/recyclerview_add_item.xml" value="0.365625" />
         <entry key="..\:/Users/PC/AndroidStudioProjects/ReviewerApp/app/src/main/res/layout/rounded_corner_shape.xml" value="0.32382246376811596" />
+        <entry key="..\:/Users/PC/AndroidStudioProjects/ReviewerApp/app/src/main/res/menu/bottom_nav_menu.xml" value="0.365625" />
         <entry key="..\:/Users/PC/AndroidStudioProjects/ReviewerApp/app/src/main/res/menu/item_menu.xml" value="0.36666666666666664" />
       </map>
     </option>
