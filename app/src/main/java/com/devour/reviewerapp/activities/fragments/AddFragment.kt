@@ -14,27 +14,36 @@ import androidx.recyclerview.widget.RecyclerView
 import com.devour.reviewerapp.R
 import com.devour.reviewerapp.activities.components.SubjectViewHolder
 import com.devour.reviewerapp.data.relationship.TermWithTopics
+import com.devour.reviewerapp.data.relationship.TopicWithItems
 import com.devour.reviewerapp.model.Item
 import com.devour.reviewerapp.model.Subject
 
 
-
-interface AddFragmentListener{
-    fun addItems(title:String,desc:String):MutableList<Item>
-    fun loadTermSpinner():MutableList<String>
-    fun loadTopicSpinner():MutableList<String>
+interface AddFragmentListener {
+    fun addItems(title: String, desc: String): MutableList<Item>
+    fun loadTermSpinner(): MutableList<TermWithTopics>
+    fun loadTopicSpinner(): MutableList<TopicWithItems>
     fun onAddTermClick()
-    fun getTermPos():Int
+    fun onAddTopicClick()
+    fun getTermPos(): Int
+
+    fun onTermSelectedItem(position: Int)
+    fun onTopicSelectedItem(position: Int)
 
 }
 
 class AddFragment() : Fragment() {
 
-    lateinit var caller:AddFragmentListener
+    lateinit var caller: AddFragmentListener
+
+    private var spinnerInitialization = false
+    private var _spinnerInitialization = false
+    var topicWithItems:MutableList<TopicWithItems> ?= null
+    private var termWithTopics :MutableList<TermWithTopics>?=null
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
-        if(context is AddFragmentListener){
+        if (context is AddFragmentListener) {
             caller = context
         }
     }
@@ -45,41 +54,37 @@ class AddFragment() : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
-        val fragment =inflater.inflate(R.layout.fragment_add, container, false)
+        val fragment = inflater.inflate(R.layout.fragment_add, container, false)
 
 
-        val addItemRecyclerView:RecyclerView = fragment.findViewById(R.id.AddItemRecyclerView)
+        val addItemRecyclerView: RecyclerView = fragment.findViewById(R.id.AddItemRecyclerView)
 
 
-
-
-        val context =activity as Context
+        val context = activity as Context
 
 
 
 
-        loadSpinner(context, fragment)
-        loadComponents(context,fragment)
+         loadTermSpinner(context, fragment)
 
-        val layoutManager:RecyclerView.LayoutManager = LinearLayoutManager(context )
-        addItemRecyclerView.layoutManager =layoutManager
-       // addItemRecyclerView.adapter =AddItemAdapter(items)
+        loadTopicSpinner( context, fragment)
 
 
+        loadComponents(context, fragment)
 
+        val layoutManager: RecyclerView.LayoutManager = LinearLayoutManager(context)
+        addItemRecyclerView.layoutManager = layoutManager
+        // addItemRecyclerView.adapter =AddItemAdapter(items)
 
 
         return fragment
     }
 
-    companion object{
-        fun newInstance():AddFragment{
+    companion object {
+        fun newInstance(): AddFragment {
             return AddFragment()
         }
     }
-
-
-
 
 
     //
@@ -101,69 +106,194 @@ class AddFragment() : Fragment() {
 //    }
 //
 //
-  fun loadSpinner(context: Context, fragment:View){
-     val termsSpinner: Spinner = fragment.findViewById(R.id.termSpinner)
-     val topicSpinner: Spinner = fragment.findViewById(R.id.topicSpinner)
 
-     val terms = caller.loadTermSpinner()
-        val position = caller.getTermPos()
-        Log.i("positiontag", "pos $position")
-    // val  topics= caller.loadTopicSpinner()
-
-            termsSpinner.setSelection(position)
+    private fun  extractTermTitle(termWithTopics:MutableList<TermWithTopics>):MutableList<String>{
 
 
-     val aa = ArrayAdapter(context, com.google.android.material.R.layout.support_simple_spinner_dropdown_item,terms)
-     aa.setDropDownViewResource(androidx.appcompat.R.layout.support_simple_spinner_dropdown_item)
-    // val aa2 = ArrayAdapter(context, com.google.android.material.R.layout.support_simple_spinner_dropdown_item,topics)
-     aa.setDropDownViewResource(androidx.appcompat.R.layout.support_simple_spinner_dropdown_item)
-    // aa2.setDropDownViewResource(androidx.appcompat.R.layout.support_simple_spinner_dropdown_item)
-
-
-
-     termsSpinner.adapter =aa
-    if(position>=0) {
-        termsSpinner.post(Runnable {
-            kotlin.run {
-                termsSpinner.setSelection(position)
-            }
-        })
+        val items = mutableListOf<String>()
+        for(item in termWithTopics ){
+            items.add(item.term.name)
+        }
+        return items
     }
-   //  topicSpinner.adapter=aa2
- }
 
-    fun loadComponents(context: Context,fragment: View){
-        val addTermButton:Button = fragment.findViewById(R.id.addTermButton)
+    private fun  extractTopicTitle(topicWithItems:MutableList<TopicWithItems>):MutableList<String>{
+
+
+        val items = mutableListOf<String>()
+        for(item in topicWithItems ){
+            items.add(item.topic.title)
+        }
+        return items
+    }
+
+
+
+
+    private fun loadTermSpinner(context: Context, fragment: View){
+        val termsSpinner: Spinner = fragment.findViewById(R.id.termSpinner)
+
+
+
+         termWithTopics =  caller.loadTermSpinner()
+
+
+        val terms =extractTermTitle(termWithTopics!!)
+        val position = caller.getTermPos()
+        if(position>=0){
+            topicWithItems = termWithTopics!![position].topicWithItems
+        }
+
+       Log.i("positiontag", "pos $topicWithItems")
+        // val  topics= caller.loadTopicSpinner()
+
+        termsSpinner.setSelection(position)
+
+
+        val aa = ArrayAdapter(
+            context,
+            com.google.android.material.R.layout.support_simple_spinner_dropdown_item,
+            terms
+        )
+        aa.setDropDownViewResource(androidx.appcompat.R.layout.support_simple_spinner_dropdown_item)
+        // val aa2 = ArrayAdapter(context, com.google.android.material.R.layout.support_simple_spinner_dropdown_item,topics)
+        aa.setDropDownViewResource(androidx.appcompat.R.layout.support_simple_spinner_dropdown_item)
+        // aa2.setDropDownViewResource(androidx.appcompat.R.layout.support_simple_spinner_dropdown_item)
+
+
+        termsSpinner.adapter = aa
+        if (position >= 0) {
+
+            termsSpinner.post(Runnable {
+                kotlin.run {
+                    termsSpinner.setSelection(position)
+                }
+            })
+
+        }
+
+
+        //  topicSpinner.adapter=aa2
+
+    }
+
+    private fun loadTopicSpinner(context: Context, fragment: View){
+
+        if(topicWithItems != null){
+            val topicSpinner: Spinner = fragment.findViewById(R.id.topicSpinner)
+
+
+
+            val topics =extractTopicTitle(topicWithItems!!)
+
+
+
+            //  topicSpinner.setSelection(position)
+
+
+            val aa = ArrayAdapter(
+                context,
+                com.google.android.material.R.layout.support_simple_spinner_dropdown_item,
+                topics
+            )
+            aa.setDropDownViewResource(androidx.appcompat.R.layout.support_simple_spinner_dropdown_item)
+            // val aa2 = ArrayAdapter(context, com.google.android.material.R.layout.support_simple_spinner_dropdown_item,topics)
+            aa.setDropDownViewResource(androidx.appcompat.R.layout.support_simple_spinner_dropdown_item)
+            // aa2.setDropDownViewResource(androidx.appcompat.R.layout.support_simple_spinner_dropdown_item)
+
+
+            topicSpinner.adapter = aa
+        }
+
+
+    }
+
+
+    private fun loadComponents(context: Context, fragment: View) {
+        val addTermButton: Button = fragment.findViewById(R.id.addTermButton)
+        val addTopicButton: Button = fragment.findViewById(R.id.addTopicButton)
 
         addTermButton.setOnClickListener {
             caller.onAddTermClick()
 
 
         }
+
+        addTopicButton.setOnClickListener {
+            caller.onAddTopicClick()
+
+        }
+
+        val termsSpinner: Spinner = fragment.findViewById(R.id.termSpinner)
+        val topicSpinner: Spinner = fragment.findViewById(R.id.topicSpinner)
+
+        termsSpinner.setOnItemSelectedListener(object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(p0: AdapterView<*>?, p1: View?, position:  Int, p3: Long) {
+
+                if(!spinnerInitialization){
+                    spinnerInitialization =true
+                    return
+                }
+                caller.onTermSelectedItem(position)
+                topicWithItems = termWithTopics!![position].topicWithItems
+                loadTopicSpinner( context, fragment)
+            }
+
+            override fun onNothingSelected(p0: AdapterView<*>?) {
+                return
+            }
+
+        })
+
+
+        topicSpinner.setOnItemSelectedListener(object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(p0: AdapterView<*>?, p1: View?, position:  Int, p3: Long) {
+
+                if(!_spinnerInitialization){
+                    _spinnerInitialization =true
+                    return
+                }
+                caller.onTopicSelectedItem(position)
+
+            }
+
+            override fun onNothingSelected(p0: AdapterView<*>?) {
+                return
+            }
+
+        })
+
+    //    val termPos = termsSpinner.selectedItem
+
+
+
     }
 
 
 }
 
+private fun Spinner.onItemSelectedListener(onItemSelectedListener: AdapterView.OnItemSelectedListener) {
 
-private class AddItemAdapter(var  items: MutableList<Item>):
+}
+
+
+private class AddItemAdapter(var items: MutableList<Item>) :
     RecyclerView.Adapter<AddItemAdapter.AddItemViewHolder>() {
-
-
-
 
 
     inner class AddItemViewHolder(inflater: View) : RecyclerView.ViewHolder(inflater)
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): AddItemViewHolder {
-        return AddItemViewHolder(LayoutInflater.from(parent.context)
-            .inflate(R.layout.recyclerview_add_item, parent,false))
+        return AddItemViewHolder(
+            LayoutInflater.from(parent.context)
+                .inflate(R.layout.recyclerview_add_item, parent, false)
+        )
 
 
     }
 
     override fun onBindViewHolder(holder: AddItemViewHolder, position: Int) {
-        val title:TextView = holder.itemView.findViewById(R.id.itemTitleTextView)
+        val title: TextView = holder.itemView.findViewById(R.id.itemTitleTextView)
         val desc: TextView = holder.itemView.findViewById(R.id.itemDescTextView)
 
         title.text = items[position].title

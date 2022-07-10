@@ -8,5 +8,6 @@ import java.io.Serializable
 
 data class TermWithTopics (
     @Embedded val term: Term,
-    @Relation (parentColumn = "termId" , entityColumn = "termId", entity = Topic::class)var topicWithItems :MutableList<TopicWithItems>
+    @Relation (parentColumn = "termId" , entityColumn = "termId", entity = Topic::class)
+    var topicWithItems :MutableList<TopicWithItems>
 ):Serializable

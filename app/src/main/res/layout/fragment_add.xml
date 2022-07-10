@@ -46,14 +46,13 @@
 
             <Spinner
                 android:id="@+id/topicSpinner"
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
                 android:layout_height="40dp"
                 android:layout_marginStart="10dp"
-                android:layout_marginEnd="10dp"
                 android:layout_marginBottom="5dp"
                 android:background="#F1DEDE"
                 app:layout_constraintBottom_toTopOf="@+id/titleEditTextView"
-                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/addTopicButton"
                 app:layout_constraintStart_toStartOf="parent" />
 
             <EditText
@@ -101,11 +100,19 @@
             <Button
                 android:id="@+id/addTermButton"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_height="40dp"
                 android:layout_marginTop="4dp"
                 android:text="Add"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
+
+            <Button
+                android:id="@+id/addTopicButton"
+                android:layout_width="wrap_content"
+                android:layout_height="40dp"
+                android:text="Add"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/addTermButton" />
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
 </FrameLayout>

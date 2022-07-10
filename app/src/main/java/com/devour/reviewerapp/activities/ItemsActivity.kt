@@ -6,14 +6,10 @@ import android.os.Bundle
 import android.util.Log
 import android.widget.*
 import androidx.appcompat.app.AlertDialog
-import androidx.appcompat.app.AppCompatDialogFragment
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentTransaction
 import com.devour.reviewerapp.R
-import com.devour.reviewerapp.activities.components.SubjectAdapter
 import com.devour.reviewerapp.activities.fragments.AddFragment
 import com.devour.reviewerapp.activities.fragments.AddFragmentListener
-
 import com.devour.reviewerapp.activities.fragments.SearchFragment
 import com.devour.reviewerapp.activities.fragments.ViewFragment
 import com.devour.reviewerapp.data.data_source.AppData
@@ -25,10 +21,17 @@ import com.devour.reviewerapp.model.Item
 import com.devour.reviewerapp.model.Subject
 import com.devour.reviewerapp.model.Term
 import com.devour.reviewerapp.model.Topic
-import com.google.android.material.bottomnavigation.BottomNavigationMenuView
 import kotlinx.coroutines.*
 
 class ItemsActivity : AppCompatActivity(), AddFragmentListener {
+
+
+    fun refresh(){
+        CoroutineScope(Dispatchers.IO).launch {
+
+            subjectWithTerms = AppData.db.reviewerDao().getSubjectsById(subjectId)
+        }
+    }
 
      var subjectId:Int = -1
      lateinit var subject:Subject
@@ -38,11 +41,11 @@ class ItemsActivity : AppCompatActivity(), AddFragmentListener {
     var topicId=-1
 
 
-    var termPosition =0
-    var topicPosition = 0
+    var termPosition =-1
+    var topicPosition = -1
 
 
-    //fragment
+
     lateinit var addFragment:AddFragment
     lateinit var viewFragment:ViewFragment
     lateinit var searchFragment : SearchFragment
@@ -69,6 +72,11 @@ class ItemsActivity : AppCompatActivity(), AddFragmentListener {
         subject = subjectWithTerms!!.subject
         subjectId = subject.subjectId
 
+        if(subjectWithTerms!!.termsWithTopics.isEmpty()){
+            termPosition=-1
+        }
+
+
         AppData.db = ReviewerDatabase.getDataBase(this)
 
 //
@@ -85,13 +93,6 @@ class ItemsActivity : AppCompatActivity(), AddFragmentListener {
 
 
         setFragment()
-
-
-
-
-
-
-
 
     }
 
@@ -150,20 +151,68 @@ class ItemsActivity : AppCompatActivity(), AddFragmentListener {
                    insertTerms(newTerms)
 
 
-                   subjectWithTerms = AppData.db.reviewerDao().getSubjectsById(subjectId)
-
-
-                withContext(Dispatchers.Main){
-
-                }
             }
+
+            refresh()
+
 
 
             termPosition = subjectWithTerms!!.termsWithTopics.size
+            Log.i("TermPos", "$termPosition")
+            updateTermId(termPosition-1)
 
 
             reloadFragment(addFragment)
 
+        }
+
+
+        builder.setNegativeButton("Cancel") {dialogue, which->
+
+
+        }
+
+        val dialouge : AlertDialog =builder.create()
+        dialouge.show()
+
+
+
+    }
+
+    fun updateTermId(pos:Int){
+        Log.i("TermPos", "$pos + ${subjectWithTerms!!.termsWithTopics.size}")
+        if( subjectWithTerms!!.termsWithTopics.isNotEmpty()){
+            termId = subjectWithTerms!!.termsWithTopics[pos].term.termId
+        }
+
+    }
+
+    fun addTopic(){
+        val builder = AlertDialog.Builder(this)
+        builder.setTitle("New Topic")
+        builder.setMessage("Enter Topic Name")
+
+        val myInput = EditText(this)
+        builder.setView(myInput)
+
+        builder.setPositiveButton("Save") {dialogue, which->
+
+
+            val newTopic = Topic(myInput.text.toString(),subjectId = subjectId, termId = subjectWithTerms!!.termsWithTopics[termPosition].term.termId, timeStamp = System.currentTimeMillis(), color = subject.color)
+
+            CoroutineScope(Dispatchers.IO).launch {
+
+                insertTopic(newTopic)
+
+
+
+
+
+                withContext(Dispatchers.Main){
+                    reloadFragment(addFragment)
+                }
+            }
+            refresh()
 
         }
 
@@ -204,6 +253,9 @@ class ItemsActivity : AppCompatActivity(), AddFragmentListener {
 
 
 
+
+
+
     private fun insertTerms(term: Term){
         AppData.db.reviewerDao().insertTerms(term)
     }
@@ -218,13 +270,15 @@ class ItemsActivity : AppCompatActivity(), AddFragmentListener {
         return mutableListOf()
     }
 
-    override fun loadTermSpinner(): MutableList<String> {
+    override fun loadTermSpinner(): MutableList<TermWithTopics> {
 
-        var item = mutableListOf<String>()
-        for(terms in subjectWithTerms!!.termsWithTopics ){
-            item.add(terms.term.name)
-        }
-        return item
+//        var items = mutableListOf<String>()
+//        for(terms in subjectWithTerms!!.termsWithTopics ){
+//            items.add(terms.term.name)
+//        }
+
+        return  subjectWithTerms!!.termsWithTopics
+
     }
 
 
@@ -232,15 +286,43 @@ class ItemsActivity : AppCompatActivity(), AddFragmentListener {
 
         return termPosition
     }
-    override fun loadTopicSpinner(): MutableList<String> {
-      return mutableListOf()
+    override fun loadTopicSpinner(): MutableList<TopicWithItems> {
+//        var items = mutableListOf<String>()
+//
+//        for(topic in subjectWithTerms!!.termsWithTopics[termPosition].topicWithItems){
+//            items.add(topic.topic.title)
+//        }
+
+        return if(termPosition>=0){
+            subjectWithTerms!!.termsWithTopics[termPosition].topicWithItems
+        }else{
+            mutableListOf()
+        }
+
+
+
     }
+
+
 
     override fun onAddTermClick() {
         addTerms()
 
 
+    }
 
+    override fun onAddTopicClick() {
+        addTopic()
+    }
+
+    override fun onTermSelectedItem(position: Int) {
+        termPosition = position
+
+
+    }
+
+    override fun onTopicSelectedItem(position: Int) {
+        topicPosition = position
     }
 
 
