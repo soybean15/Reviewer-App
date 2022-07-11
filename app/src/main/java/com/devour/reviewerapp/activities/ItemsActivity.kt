@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.util.Log
 import android.widget.*
 import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.fragment.app.Fragment
 import com.devour.reviewerapp.R
 import com.devour.reviewerapp.activities.fragments.AddFragment
@@ -26,11 +27,15 @@ import kotlinx.coroutines.*
 class ItemsActivity : AppCompatActivity(), AddFragmentListener {
 
 
-    fun refresh(){
-        CoroutineScope(Dispatchers.IO).launch {
+    private fun refresh(){
+     CoroutineScope(Dispatchers.IO).launch {
 
             subjectWithTerms = AppData.db.reviewerDao().getSubjectsById(subjectId)
         }
+
+
+
+
     }
 
      var subjectId:Int = -1
@@ -41,7 +46,7 @@ class ItemsActivity : AppCompatActivity(), AddFragmentListener {
     var topicId=-1
 
 
-    var termPosition =-1
+    var termPosition =0
     var topicPosition = -1
 
 
@@ -49,6 +54,8 @@ class ItemsActivity : AppCompatActivity(), AddFragmentListener {
     lateinit var addFragment:AddFragment
     lateinit var viewFragment:ViewFragment
     lateinit var searchFragment : SearchFragment
+
+    var items = mutableListOf<Item>()
 
 
 
@@ -58,6 +65,8 @@ class ItemsActivity : AppCompatActivity(), AddFragmentListener {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_items)
+
+        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
 
         addFragment= AddFragment.newInstance()
 
@@ -74,25 +83,20 @@ class ItemsActivity : AppCompatActivity(), AddFragmentListener {
 
         if(subjectWithTerms!!.termsWithTopics.isEmpty()){
             termPosition=-1
+        }else{
+            termId= subjectWithTerms!!.termsWithTopics[termPosition].term.termId
         }
+
 
 
         AppData.db = ReviewerDatabase.getDataBase(this)
 
-//
-//        CoroutineScope(Dispatchers.IO).launch {
-//            subjectWithTerms =AppData.db.reviewerDao().getSubjectsById(subjectId)
-//
-//
-//
-//
-//
-//        }
-        firstTimeOpening()
-
+        refresh()
 
 
         setFragment()
+
+        getAllItems()
 
     }
 
@@ -148,21 +152,25 @@ class ItemsActivity : AppCompatActivity(), AddFragmentListener {
 
             CoroutineScope(Dispatchers.IO).launch {
 
-                   insertTerms(newTerms)
+            insertTerms(newTerms)
 
+                subjectWithTerms = AppData.db.reviewerDao().getSubjectsById(subjectId)
 
             }
-
-            refresh()
-
-
-
             termPosition = subjectWithTerms!!.termsWithTopics.size
-            Log.i("TermPos", "$termPosition")
-            updateTermId(termPosition-1)
+            updateId(termPosition-1)
+
+
+
+
+
+
 
 
             reloadFragment(addFragment)
+
+
+
 
         }
 
@@ -179,13 +187,30 @@ class ItemsActivity : AppCompatActivity(), AddFragmentListener {
 
     }
 
-    fun updateTermId(pos:Int){
-        Log.i("TermPos", "$pos + ${subjectWithTerms!!.termsWithTopics.size}")
+    fun updateId(pos:Int){
+
         if( subjectWithTerms!!.termsWithTopics.isNotEmpty()){
             termId = subjectWithTerms!!.termsWithTopics[pos].term.termId
+            Log.i("TermId", "$termId")
+
         }
 
     }
+
+    fun updateTopicId(pos:Int){
+
+        if(termPosition>=0){
+            if( subjectWithTerms!!.termsWithTopics[termPosition].topicWithItems.isNotEmpty()){
+                topicId=subjectWithTerms!!.termsWithTopics[termPosition].topicWithItems[pos].topic.topicId
+                Log.i("TermId", "$topicId")
+            }
+
+
+        }
+
+    }
+
+
 
     fun addTopic(){
         val builder = AlertDialog.Builder(this)
@@ -197,22 +222,36 @@ class ItemsActivity : AppCompatActivity(), AddFragmentListener {
 
         builder.setPositiveButton("Save") {dialogue, which->
 
-
-            val newTopic = Topic(myInput.text.toString(),subjectId = subjectId, termId = subjectWithTerms!!.termsWithTopics[termPosition].term.termId, timeStamp = System.currentTimeMillis(), color = subject.color)
-
-            CoroutineScope(Dispatchers.IO).launch {
-
-                insertTopic(newTopic)
+            if(subjectWithTerms!!.termsWithTopics.isEmpty()){
+                Toast.makeText(this, "Terms is empty",Toast.LENGTH_SHORT).show()
+            }else {
 
 
+                val newTopic = Topic(
+                    myInput.text.toString(),
+                    subjectId = subjectId,
+                    termId = subjectWithTerms!!.termsWithTopics[termPosition].term.termId,
+                    timeStamp = System.currentTimeMillis(),
+                    color = subject.color
+                )
+
+                CoroutineScope(Dispatchers.IO).launch {
+
+                    insertTopic(newTopic)
 
 
-
-                withContext(Dispatchers.Main){
-                    reloadFragment(addFragment)
                 }
+                refresh()
+                topicPosition = subjectWithTerms!!.termsWithTopics[termPosition].topicWithItems.size
+
+
+                updateTopicId(topicPosition - 1)
+
+
+                Log.i("TermPos", "termID: ${termId} topicID:$topicId")
+                reloadFragment(addFragment)
             }
-            refresh()
+
 
         }
 
@@ -249,6 +288,30 @@ class ItemsActivity : AppCompatActivity(), AddFragmentListener {
     }
 
 
+    fun addNewItem(item: Item){
+
+
+
+
+        CoroutineScope(Dispatchers.IO).launch {
+            insertItem(item)
+        }
+
+    }
+
+
+     fun getAllItems(){
+
+
+        CoroutineScope(Dispatchers.IO).launch{
+            items = AppData.db.reviewerDao().getAllItems(subjectId)
+            Log.i("ItemsLog", items.toString()+"subjectId ${subjectId}")
+        }
+
+
+
+    }
+
 
 
 
@@ -266,16 +329,8 @@ class ItemsActivity : AppCompatActivity(), AddFragmentListener {
         AppData.db.reviewerDao().insertItem(item)
     }
 
-    override fun addItems(title: String, desc: String): MutableList<Item> {
-        return mutableListOf()
-    }
 
     override fun loadTermSpinner(): MutableList<TermWithTopics> {
-
-//        var items = mutableListOf<String>()
-//        for(terms in subjectWithTerms!!.termsWithTopics ){
-//            items.add(terms.term.name)
-//        }
 
         return  subjectWithTerms!!.termsWithTopics
 
@@ -286,12 +341,9 @@ class ItemsActivity : AppCompatActivity(), AddFragmentListener {
 
         return termPosition
     }
+
+
     override fun loadTopicSpinner(): MutableList<TopicWithItems> {
-//        var items = mutableListOf<String>()
-//
-//        for(topic in subjectWithTerms!!.termsWithTopics[termPosition].topicWithItems){
-//            items.add(topic.topic.title)
-//        }
 
         return if(termPosition>=0){
             subjectWithTerms!!.termsWithTopics[termPosition].topicWithItems
@@ -304,6 +356,10 @@ class ItemsActivity : AppCompatActivity(), AddFragmentListener {
     }
 
 
+    override fun retrieveAllItems(): MutableList<Item> {
+        return items
+    }
+
 
     override fun onAddTermClick() {
         addTerms()
@@ -312,18 +368,49 @@ class ItemsActivity : AppCompatActivity(), AddFragmentListener {
     }
 
     override fun onAddTopicClick() {
-        addTopic()
+
+            addTopic()
+
+
     }
 
     override fun onTermSelectedItem(position: Int) {
         termPosition = position
+        termId =subjectWithTerms!!.termsWithTopics[termPosition].term.termId
 
 
     }
 
     override fun onTopicSelectedItem(position: Int) {
         topicPosition = position
+        topicId= subjectWithTerms!!.termsWithTopics[termPosition].topicWithItems[topicPosition].topic.topicId
+
     }
+
+    override fun addItems(title: String, desc: String): MutableList<Item> {
+        var _termId=-1
+        if(termPosition >=0){
+
+            _termId= subjectWithTerms!!.termsWithTopics[termPosition].term.termId
+
+        }
+
+
+        val newItem = Item(title,desc,topicId,_termId,subjectId,System.currentTimeMillis(),subject.color )
+        addNewItem(newItem)
+
+        getAllItems()
+
+        items.clear()
+
+        reloadFragment(addFragment)
+
+        Log.i("ItemsLog", items.toString()+"subjectId ${subjectId}")
+        items.sortBy { it.timeStamp }
+
+        return items
+    }
+
 
 
 }

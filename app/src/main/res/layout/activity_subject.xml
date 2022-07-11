@@ -28,7 +28,7 @@
             android:id="@+id/textView5"
             android:layout_width="wrap_content"
             android:layout_height="50dp"
-            android:fontFamily="sans-serif-medium"
+            android:fontFamily="@font/varsity_regular"
             android:gravity="center|start"
             android:includeFontPadding="false"
             android:paddingStart="10dp"

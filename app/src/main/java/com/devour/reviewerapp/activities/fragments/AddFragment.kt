@@ -1,6 +1,7 @@
 package com.devour.reviewerapp.activities.fragments
 
 import android.content.Context
+import android.graphics.Typeface
 import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
@@ -8,6 +9,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
+import androidx.core.content.res.ResourcesCompat
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -26,6 +28,8 @@ interface AddFragmentListener {
     fun onAddTermClick()
     fun onAddTopicClick()
     fun getTermPos(): Int
+
+    fun retrieveAllItems():MutableList<Item>
 
     fun onTermSelectedItem(position: Int)
     fun onTopicSelectedItem(position: Int)
@@ -71,10 +75,17 @@ class AddFragment() : Fragment() {
 
 
         loadComponents(context, fragment)
+        val items = caller.retrieveAllItems()
 
-        val layoutManager: RecyclerView.LayoutManager = LinearLayoutManager(context)
+        val linearLayout = LinearLayoutManager(context)
+        linearLayout.stackFromEnd =true
+        linearLayout.reverseLayout = false
+
+        val layoutManager: RecyclerView.LayoutManager = linearLayout
+
         addItemRecyclerView.layoutManager = layoutManager
-        // addItemRecyclerView.adapter =AddItemAdapter(items)
+
+         addItemRecyclerView.adapter =AddItemAdapter(items)
 
 
         return fragment
@@ -144,8 +155,6 @@ class AddFragment() : Fragment() {
             topicWithItems = termWithTopics!![position].topicWithItems
         }
 
-       Log.i("positiontag", "pos $topicWithItems")
-        // val  topics= caller.loadTopicSpinner()
 
         termsSpinner.setSelection(position)
 
@@ -156,9 +165,9 @@ class AddFragment() : Fragment() {
             terms
         )
         aa.setDropDownViewResource(androidx.appcompat.R.layout.support_simple_spinner_dropdown_item)
-        // val aa2 = ArrayAdapter(context, com.google.android.material.R.layout.support_simple_spinner_dropdown_item,topics)
+
         aa.setDropDownViewResource(androidx.appcompat.R.layout.support_simple_spinner_dropdown_item)
-        // aa2.setDropDownViewResource(androidx.appcompat.R.layout.support_simple_spinner_dropdown_item)
+
 
 
         termsSpinner.adapter = aa
@@ -173,7 +182,6 @@ class AddFragment() : Fragment() {
         }
 
 
-        //  topicSpinner.adapter=aa2
 
     }
 
@@ -187,19 +195,13 @@ class AddFragment() : Fragment() {
             val topics =extractTopicTitle(topicWithItems!!)
 
 
-
-            //  topicSpinner.setSelection(position)
-
-
             val aa = ArrayAdapter(
                 context,
                 com.google.android.material.R.layout.support_simple_spinner_dropdown_item,
                 topics
             )
             aa.setDropDownViewResource(androidx.appcompat.R.layout.support_simple_spinner_dropdown_item)
-            // val aa2 = ArrayAdapter(context, com.google.android.material.R.layout.support_simple_spinner_dropdown_item,topics)
             aa.setDropDownViewResource(androidx.appcompat.R.layout.support_simple_spinner_dropdown_item)
-            // aa2.setDropDownViewResource(androidx.appcompat.R.layout.support_simple_spinner_dropdown_item)
 
 
             topicSpinner.adapter = aa
@@ -263,11 +265,66 @@ class AddFragment() : Fragment() {
 
         })
 
-    //    val termPos = termsSpinner.selectedItem
 
+        val addItemButton:Button = fragment.findViewById(R.id.addItemButton)
+        val titleEditTextView :EditText = fragment.findViewById(R.id.titleEditTextView)
+        val descriptionEditTextView :EditText = fragment.findViewById(R.id.descriptionEditTextView)
 
+        addItemButton.setOnClickListener {
+            val title = titleEditTextView.text.toString()
+            val desc = descriptionEditTextView.text.toString()
+            caller.addItems(title,desc)
+            titleEditTextView.text.clear()
+            descriptionEditTextView.text.clear()
+        }
 
     }
+
+
+
+
+
+
+
+    internal inner class AddItemAdapter(var items: MutableList<Item>) :
+        RecyclerView.Adapter<AddItemAdapter.AddItemViewHolder>() {
+
+
+        inner class AddItemViewHolder(inflater: View) : RecyclerView.ViewHolder(inflater)
+
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): AddItemViewHolder {
+            return AddItemViewHolder(
+                LayoutInflater.from(parent.context)
+                    .inflate(R.layout.recyclerview_add_item, parent, false)
+            )
+
+
+        }
+
+        override fun onBindViewHolder(holder: AddItemViewHolder, position: Int) {
+            val title: TextView = holder.itemView.findViewById(R.id.itemTitleTextView)
+            val desc: TextView = holder.itemView.findViewById(R.id.itemDescTextView)
+            val container: LinearLayout = holder.itemView.findViewById(R.id.itemContainer)
+
+            container.setBackgroundColor(items[position].color)
+            title.text = items[position].title
+
+
+
+            desc.text = items[position].desc
+
+
+          //  desc.setBackgroundColor(items[position].color)
+
+        }
+
+        override fun getItemCount(): Int {
+            return items.size
+        }
+    }
+
+
+
 
 
 }
@@ -277,30 +334,3 @@ private fun Spinner.onItemSelectedListener(onItemSelectedListener: AdapterView.O
 }
 
 
-private class AddItemAdapter(var items: MutableList<Item>) :
-    RecyclerView.Adapter<AddItemAdapter.AddItemViewHolder>() {
-
-
-    inner class AddItemViewHolder(inflater: View) : RecyclerView.ViewHolder(inflater)
-
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): AddItemViewHolder {
-        return AddItemViewHolder(
-            LayoutInflater.from(parent.context)
-                .inflate(R.layout.recyclerview_add_item, parent, false)
-        )
-
-
-    }
-
-    override fun onBindViewHolder(holder: AddItemViewHolder, position: Int) {
-        val title: TextView = holder.itemView.findViewById(R.id.itemTitleTextView)
-        val desc: TextView = holder.itemView.findViewById(R.id.itemDescTextView)
-
-        title.text = items[position].title
-        desc.text = items[position].desc
-    }
-
-    override fun getItemCount(): Int {
-        return items.size
-    }
-}

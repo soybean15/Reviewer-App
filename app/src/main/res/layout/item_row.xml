@@ -29,7 +29,7 @@
 
         android:layout_width="match_parent"
         android:layout_height="80dp"
-        android:fontFamily="@font/duru_sans"
+        android:fontFamily="@font/upperpunch"
         android:padding="20dp"
         android:text="Sample"
         android:textColor="@color/white"

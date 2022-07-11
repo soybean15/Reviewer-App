@@ -15,6 +15,7 @@
             android:id="@+id/AddItemRecyclerView"
             android:layout_width="match_parent"
             android:layout_height="0dp"
+
             app:layout_constraintBottom_toTopOf="@+id/constraintLayout"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.428"
@@ -66,7 +67,7 @@
                 android:hint="Title"
                 android:inputType="textPersonName"
                 app:layout_constraintBottom_toTopOf="@+id/descriptionEditTextView"
-                app:layout_constraintEnd_toStartOf="@+id/addSaveButton"
+                app:layout_constraintEnd_toStartOf="@+id/addItemButton"
                 app:layout_constraintHorizontal_bias="0.0"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
@@ -76,20 +77,24 @@
             <EditText
                 android:id="@+id/descriptionEditTextView"
                 android:layout_width="0dp"
-                android:layout_height="50dp"
+
+                android:layout_height="wrap_content"
                 android:layout_marginStart="10dp"
                 android:layout_marginEnd="10dp"
                 android:layout_marginBottom="10dp"
                 android:background="@drawable/rounded_corner_edit_textview"
                 android:ems="10"
                 android:hint="Description"
-                android:inputType="textPersonName"
+                android:inputType="textMultiLine"
+                android:minLines="2"
+                android:lines="3"
+                android:maxLines="5"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toStartOf="@+id/addSaveButton"
+                app:layout_constraintEnd_toStartOf="@+id/addItemButton"
                 app:layout_constraintStart_toStartOf="parent" />
 
             <Button
-                android:id="@+id/addSaveButton"
+                android:id="@+id/addItemButton"
                 android:layout_width="wrap_content"
                 android:layout_height="40dp"
                 android:layout_marginBottom="10dp"
