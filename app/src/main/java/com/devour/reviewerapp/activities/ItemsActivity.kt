@@ -1,18 +1,23 @@
 package com.devour.reviewerapp.activities
 
-import android.os.Build
-import androidx.appcompat.app.AppCompatActivity
+import android.R.attr.label
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Context
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.util.Log
+import android.view.View
+import android.view.animation.AnimationUtils
 import android.widget.*
 import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.room.Query
 import com.devour.reviewerapp.R
-import com.devour.reviewerapp.activities.fragments.AddFragment
-import com.devour.reviewerapp.activities.fragments.AddFragmentListener
-import com.devour.reviewerapp.activities.fragments.SearchFragment
-import com.devour.reviewerapp.activities.fragments.ViewFragment
+import com.devour.reviewerapp.activities.fragments.*
 import com.devour.reviewerapp.data.data_source.AppData
 import com.devour.reviewerapp.data.data_source.ReviewerDatabase
 import com.devour.reviewerapp.data.relationship.SubjectWithTerms
@@ -24,22 +29,12 @@ import com.devour.reviewerapp.model.Term
 import com.devour.reviewerapp.model.Topic
 import kotlinx.coroutines.*
 
-class ItemsActivity : AppCompatActivity(), AddFragmentListener {
 
 
-    private fun refresh(){
-     CoroutineScope(Dispatchers.IO).launch {
+class ItemsActivity : AppCompatActivity(), AddFragmentListener{
 
-            subjectWithTerms = AppData.db.reviewerDao().getSubjectsById(subjectId)
-        }
-
-
-
-
-    }
-
-     var subjectId:Int = -1
-     lateinit var subject:Subject
+    var subjectId:Int = -1
+    lateinit var subject:Subject
 
 
     var termId = -1
@@ -61,6 +56,80 @@ class ItemsActivity : AppCompatActivity(), AddFragmentListener {
 
     private var  subjectWithTerms:SubjectWithTerms?=null
 
+    lateinit var sharedPreferences:SharedPreferences
+
+
+
+    fun loadUI(){
+        val toolbar:androidx.appcompat.widget.Toolbar = findViewById(R.id.toolbar)
+        val subjectText :TextView = findViewById(R.id.subjectTitleTextView)
+
+        subjectText.text = subject.name
+
+        toolbar.setBackgroundColor(subject.color)
+        setSupportActionBar(toolbar)
+        supportActionBar!!.setDisplayHomeAsUpEnabled(true)
+        supportActionBar!!.setDisplayShowTitleEnabled(false)
+    }
+
+    override fun onSupportNavigateUp(): Boolean {
+        onBackPressed()
+        return true
+    }
+
+
+
+    private fun refresh(){
+     CoroutineScope(Dispatchers.IO).launch {
+
+            subjectWithTerms = AppData.db.reviewerDao().getSubjectsById(subjectId)
+        }
+
+
+
+
+    }
+
+
+
+    private fun sharedPreference(){
+        sharedPreferences = this.getPreferences(Context.MODE_PRIVATE)
+
+
+        termPosition=sharedPreferences.getInt(subject.name+subjectId,-1)
+
+        if(termPosition >= 0){
+            termId= subjectWithTerms!!.termsWithTopics[termPosition].term.termId
+
+            Log.i("Items3Log", "oncreate"+subject.name+subjectId+termId+" termposition ${termPosition}")
+            topicPosition= sharedPreferences.getInt( subject.name+subjectId+termId ,-1)
+
+            if(topicPosition>=0){
+
+                try{
+                    topicId = subjectWithTerms!!.termsWithTopics[termPosition].topicWithItems[topicPosition].topic.topicId
+                    Log.i("Items3Log", "oncreate"+subject.name+subjectId+termId+" topicposition ${topicPosition}")
+
+                }catch (e:Exception){
+                    topicPosition = -1
+                    topicId=-1
+                }
+
+            }
+
+        }
+
+    }
+
+    private fun addSharedPref(key:String, value:Int){
+        with(sharedPreferences.edit()){
+
+            putInt(key,value).commit()
+        }
+    }
+
+
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -68,10 +137,9 @@ class ItemsActivity : AppCompatActivity(), AddFragmentListener {
 
         AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
 
-        addFragment= AddFragment.newInstance()
 
-        viewFragment = ViewFragment()
-        searchFragment = SearchFragment()
+
+        AppData.db = ReviewerDatabase.getDataBase(this)
 
 
 
@@ -81,29 +149,35 @@ class ItemsActivity : AppCompatActivity(), AddFragmentListener {
         subject = subjectWithTerms!!.subject
         subjectId = subject.subjectId
 
-        if(subjectWithTerms!!.termsWithTopics.isEmpty()){
-            termPosition=-1
-        }else{
-            termId= subjectWithTerms!!.termsWithTopics[termPosition].term.termId
-        }
-
-
-
-        AppData.db = ReviewerDatabase.getDataBase(this)
+        loadUI()
 
         refresh()
+
+        viewFragment = ViewFragment.newInstance(subjectWithTerms!!.termsWithTopics)
+        addFragment= AddFragment.newInstance()
+        searchFragment = SearchFragment()
 
 
         setFragment()
 
         getAllItems()
 
+
+
+        sharedPreference()
+
+    }
+
+    override fun copyToClipBoard(text:String){
+        val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+        val clip = ClipData.newPlainText("label", text)
+        clipboard.setPrimaryClip(clip)
     }
 
     private  fun setCurrentFragment(fragment: Fragment){
 
         supportFragmentManager.beginTransaction().apply {
-            replace(R.id.flFragment,fragment, )
+            replace(R.id.flFragment, fragment)
                 .commit()
         }
     }
@@ -152,22 +226,32 @@ class ItemsActivity : AppCompatActivity(), AddFragmentListener {
 
             CoroutineScope(Dispatchers.IO).launch {
 
-            insertTerms(newTerms)
-
+                awaitAll(
+                    async { insertTerms(newTerms) },
+                    async {
+                        subjectWithTerms = AppData.db.reviewerDao().getSubjectsById(subjectId)
+                    })
                 subjectWithTerms = AppData.db.reviewerDao().getSubjectsById(subjectId)
+
+                withContext(Dispatchers.IO){
+
+
+                }
+
+
+
+
 
             }
             termPosition = subjectWithTerms!!.termsWithTopics.size
-            updateId(termPosition-1)
+            addSharedPref(subject.name+subjectId, termPosition)
 
+           // updateId(termPosition-1)
+            Log.i("termlog", "Add term${subject.name+subjectId}")
 
-
-
-
-
-
-
+            updateSubjectTimeStamp()
             reloadFragment(addFragment)
+
 
 
 
@@ -187,28 +271,6 @@ class ItemsActivity : AppCompatActivity(), AddFragmentListener {
 
     }
 
-    fun updateId(pos:Int){
-
-        if( subjectWithTerms!!.termsWithTopics.isNotEmpty()){
-            termId = subjectWithTerms!!.termsWithTopics[pos].term.termId
-            Log.i("TermId", "$termId")
-
-        }
-
-    }
-
-    fun updateTopicId(pos:Int){
-
-        if(termPosition>=0){
-            if( subjectWithTerms!!.termsWithTopics[termPosition].topicWithItems.isNotEmpty()){
-                topicId=subjectWithTerms!!.termsWithTopics[termPosition].topicWithItems[pos].topic.topicId
-                Log.i("TermId", "$topicId")
-            }
-
-
-        }
-
-    }
 
 
 
@@ -237,19 +299,28 @@ class ItemsActivity : AppCompatActivity(), AddFragmentListener {
 
                 CoroutineScope(Dispatchers.IO).launch {
 
-                    insertTopic(newTopic)
+
+                    awaitAll(
+                        async { insertTopic(newTopic) },
+                        async {
+                            subjectWithTerms = AppData.db.reviewerDao().getSubjectsById(subjectId)
+                        })
+
+
+                    subjectWithTerms = AppData.db.reviewerDao().getSubjectsById(subjectId)
 
 
                 }
-                refresh()
+
                 topicPosition = subjectWithTerms!!.termsWithTopics[termPosition].topicWithItems.size
+                //updateTopicId(topicPosition -1)
+                addSharedPref(subject.name+subjectId+termId, topicPosition)
 
 
-                updateTopicId(topicPosition - 1)
-
-
-                Log.i("TermPos", "termID: ${termId} topicID:$topicId")
+                Log.i("positionlog", "from Main: ${topicPosition} ")
+                updateSubjectTimeStamp()
                 reloadFragment(addFragment)
+
             }
 
 
@@ -329,6 +400,13 @@ class ItemsActivity : AppCompatActivity(), AddFragmentListener {
         AppData.db.reviewerDao().insertItem(item)
     }
 
+    private fun updateSubjectTimeStamp(){
+        CoroutineScope(Dispatchers.IO).launch {
+            AppData.db.reviewerDao().updateSubjectTimeStamp(subjectId,System.currentTimeMillis())
+        }
+
+    }
+
 
     override fun loadTermSpinner(): MutableList<TermWithTopics> {
 
@@ -340,6 +418,20 @@ class ItemsActivity : AppCompatActivity(), AddFragmentListener {
     override fun getTermPos(): Int {
 
         return termPosition
+    }
+
+    override fun getSubjectInstance(): Subject {
+        return subject
+    }
+
+    override fun getTopicPos(): Int {
+
+        //when changing terms, check if selected term items is as many as the previous selected term items
+        if(subjectWithTerms!!.termsWithTopics[termPosition].topicWithItems.size <=topicPosition){
+
+            return -1
+        }
+        return topicPosition
     }
 
 
@@ -356,14 +448,19 @@ class ItemsActivity : AppCompatActivity(), AddFragmentListener {
     }
 
 
+
+
     override fun retrieveAllItems(): MutableList<Item> {
+
+        getAllItems()
+
         return items
+
     }
 
 
     override fun onAddTermClick() {
         addTerms()
-
 
     }
 
@@ -376,41 +473,60 @@ class ItemsActivity : AppCompatActivity(), AddFragmentListener {
 
     override fun onTermSelectedItem(position: Int) {
         termPosition = position
-        termId =subjectWithTerms!!.termsWithTopics[termPosition].term.termId
 
+
+        addSharedPref(subject.name+subjectId, termPosition)
 
     }
 
     override fun onTopicSelectedItem(position: Int) {
-        topicPosition = position
-        topicId= subjectWithTerms!!.termsWithTopics[termPosition].topicWithItems[topicPosition].topic.topicId
+        topicPosition= sharedPreferences.getInt( subject.name+subjectId+termId ,-1)
+
+            topicPosition = position
+            addSharedPref(subject.name + subjectId + termId, topicPosition)
+
+
 
     }
 
-    override fun addItems(title: String, desc: String): MutableList<Item> {
-        var _termId=-1
-        if(termPosition >=0){
+    override fun addItems(title: String, desc: String) {
 
-            _termId= subjectWithTerms!!.termsWithTopics[termPosition].term.termId
+        if( subjectWithTerms!!.termsWithTopics.size>0){
+
+            termId= subjectWithTerms!!.termsWithTopics[termPosition].term.termId
+            if(subjectWithTerms!!.termsWithTopics[termPosition].topicWithItems.isNotEmpty() && subjectWithTerms!!.termsWithTopics.isNotEmpty()){
+                topicId= subjectWithTerms!!.termsWithTopics[termPosition].topicWithItems[topicPosition].topic.topicId
+            }
 
         }
 
 
-        val newItem = Item(title,desc,topicId,_termId,subjectId,System.currentTimeMillis(),subject.color )
+        val newItem = Item(title,desc,topicId,termId,subjectId,System.currentTimeMillis(),subject.color )
         addNewItem(newItem)
 
-        getAllItems()
-
+        updateSubjectTimeStamp()
         items.clear()
+        items.sortBy { it.timeStamp }
+
 
         reloadFragment(addFragment)
 
-        Log.i("ItemsLog", items.toString()+"subjectId ${subjectId}")
-        items.sortBy { it.timeStamp }
-
-        return items
     }
 
+    override fun onDeleteItem(itemID: Int, position: Int) {
+        CoroutineScope(Dispatchers.IO).launch {
+           awaitAll(
+               async {AppData.db.reviewerDao().deleteItem(itemID)  },
+               async {getAllItems()  }
+           )
+
+        }
+        updateSubjectTimeStamp()
+
+
+
+        reloadFragment(addFragment)
+    }
 
 
 }

@@ -5,6 +5,7 @@
     android:id="@+id/addFragment"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:autofillHints="Terms"
     tools:context=".activities.fragments.AddFragment">
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -16,52 +17,62 @@
             android:layout_width="match_parent"
             android:layout_height="0dp"
 
-            app:layout_constraintBottom_toTopOf="@+id/constraintLayout"
+
+            app:layout_constraintBottom_toTopOf="@+id/LowerConstraintLayout"
+
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.428"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
         <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/constraintLayout"
+            android:id="@+id/LowerConstraintLayout"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:background="#151C5C"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="1.0"
+            app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent">
+
 
             <Spinner
                 android:id="@+id/termSpinner"
                 android:layout_width="0dp"
-                android:layout_height="40dp"
-                android:layout_marginStart="10dp"
+                android:layout_height="30dp"
+                android:layout_marginStart="5dp"
+
                 android:layout_marginTop="5dp"
-                android:layout_marginBottom="5dp"
-                android:background="#F1DEDE"
+                android:layout_marginEnd="5dp"
+                android:layout_marginBottom="3dp"
+                android:background="@drawable/spinner_background"
                 app:layout_constraintBottom_toTopOf="@+id/topicSpinner"
                 app:layout_constraintEnd_toStartOf="@+id/addTermButton"
-                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/textView"
                 app:layout_constraintTop_toTopOf="parent" />
 
             <Spinner
                 android:id="@+id/topicSpinner"
                 android:layout_width="0dp"
-                android:layout_height="40dp"
-                android:layout_marginStart="10dp"
-                android:layout_marginBottom="5dp"
-                android:background="#F1DEDE"
+                android:layout_height="30dp"
+
+                android:layout_marginStart="5dp"
+
+                android:layout_marginEnd="5dp"
+                android:layout_marginBottom="3dp"
+                android:autofillHints="Topics"
+                android:background="@drawable/spinner_background"
                 app:layout_constraintBottom_toTopOf="@+id/titleEditTextView"
                 app:layout_constraintEnd_toStartOf="@+id/addTopicButton"
-                app:layout_constraintStart_toStartOf="parent" />
+                app:layout_constraintStart_toEndOf="@+id/textView2" />
 
             <EditText
                 android:id="@+id/titleEditTextView"
                 android:layout_width="0dp"
                 android:layout_height="30dp"
                 android:layout_marginStart="10dp"
-                android:layout_marginEnd="10dp"
+                android:layout_marginEnd="5dp"
+                android:layout_marginBottom="2dp"
                 android:background="@drawable/rounded_corner_edit_textview"
                 android:ems="10"
                 android:hint="Title"
@@ -71,7 +82,7 @@
                 app:layout_constraintHorizontal_bias="0.0"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintVertical_bias="0.901"
+                app:layout_constraintVertical_bias="1.0"
                 tools:ignore="TouchTargetSizeCheck" />
 
             <EditText
@@ -80,44 +91,106 @@
 
                 android:layout_height="wrap_content"
                 android:layout_marginStart="10dp"
-                android:layout_marginEnd="10dp"
-                android:layout_marginBottom="10dp"
+                android:layout_marginEnd="5dp"
+                android:layout_marginBottom="2dp"
                 android:background="@drawable/rounded_corner_edit_textview"
                 android:ems="10"
                 android:hint="Description"
                 android:inputType="textMultiLine"
-                android:minLines="2"
-                android:lines="3"
+                android:lines="5"
                 android:maxLines="5"
+                android:minLines="2"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toStartOf="@+id/addItemButton"
                 app:layout_constraintStart_toStartOf="parent" />
 
-            <Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/addItemButton"
-                android:layout_width="wrap_content"
-                android:layout_height="40dp"
-                android:layout_marginBottom="10dp"
-                android:text="@string/save"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent" />
+                style="@style/Widget.MaterialComponents.Button.Icon"
+                android:layout_width="60dp"
+                android:layout_height="55dp"
+                android:layout_marginBottom="2dp"
+                android:insetLeft="0dp"
 
-            <Button
-                android:id="@+id/addTermButton"
-                android:layout_width="wrap_content"
-                android:layout_height="40dp"
-                android:layout_marginTop="4dp"
-                android:text="Add"
+                android:insetTop="0dp"
+                android:insetRight="0dp"
+                android:insetBottom="0dp"
+                android:text="@string/save"
+                android:textSize="11sp"
+                app:backgroundTint="#285E11"
+
+                app:iconPadding="0dp"
+                app:iconSize="24dp"
+                app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
+                app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.MyApp.Button.Rounded"
+                tools:ignore="SmallSp" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/addTermButton"
+                style="@style/Widget.MaterialComponents.Button.Icon"
+                android:layout_width="60dp"
+                android:layout_height="30dp"
+                android:layout_marginTop="5dp"
+                android:layout_marginEnd="3dp"
+                android:insetLeft="0dp"
+                android:insetTop="0dp"
+                android:insetRight="0dp"
+                android:insetBottom="0dp"
+                android:padding="0dp"
+                app:backgroundTint="#285E11"
+                app:icon="@drawable/ic_baseline_add_24"
+                app:iconGravity="textStart"
+                app:iconPadding="0dp"
+                app:iconSize="20dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.MyApp.Button.Rounded" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/addTopicButton"
+                style="@style/Widget.MaterialComponents.Button.Icon"
+                android:layout_width="60dp"
+                android:layout_height="30dp"
+                android:layout_marginTop="5dp"
+                android:layout_marginEnd="3dp"
+                android:insetLeft="0dp"
+                android:insetTop="0dp"
+                android:insetRight="0dp"
+                android:insetBottom="0dp"
+                android:padding="0dp"
+                app:backgroundTint="#285E11"
+                app:icon="@drawable/ic_baseline_add_24"
+                app:iconGravity="textStart"
+                app:iconPadding="0dp"
+                app:iconSize="20dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/addTermButton"
+                app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.MyApp.Button.Rounded" />
+
+            <TextView
+                android:id="@+id/textView"
+                android:layout_width="0dp"
+                android:layout_height="30dp"
+                android:layout_marginStart="10dp"
+                android:layout_marginTop="8dp"
+                android:fontFamily="@font/louis_george_cafe_bold"
+                android:text="Terms"
+                android:textColor="#EFEDED"
+                app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
-            <Button
-                android:id="@+id/addTopicButton"
-                android:layout_width="wrap_content"
-                android:layout_height="40dp"
-                android:text="Add"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/addTermButton" />
+            <TextView
+                android:id="@+id/textView2"
+                android:layout_width="00dp"
+                android:layout_height="30dp"
+                android:layout_marginStart="10dp"
+                android:layout_marginTop="5dp"
+                android:fontFamily="@font/louis_george_cafe_bold"
+                android:text="Topics"
+                android:textColor="#EFEDED"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/textView" />
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
 </FrameLayout>

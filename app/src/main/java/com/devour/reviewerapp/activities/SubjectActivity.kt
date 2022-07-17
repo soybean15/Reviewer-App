@@ -64,6 +64,13 @@ class SubjectActivity : AppCompatActivity() ,OnSubjectClickListener{
 
     }
 
+    override fun onResume() {
+        super.onResume()
+       loadSubjects()
+    }
+
+
+
     override fun onSubjectClick(subjectWithTerms: SubjectWithTerms) {
 
         val bundle = Bundle()

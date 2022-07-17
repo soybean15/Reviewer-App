@@ -28,6 +28,12 @@
     <color name="yellow_2">#423C10</color>
     <color name="yellow_3">#373104</color>
 
+    <color name="gray_1">#403B3A</color>
+    <color name="gray_2">#504F4F</color>
+    <color name="gray_3">#323131</color>
+    <color name="gray_4">#1B1615</color>
+    <color name="gray_5">#2C2A29</color>
+
     <array name="random_colors">
         <item>@color/blue_1</item>
         <item>@color/blue_2</item>
@@ -51,7 +57,14 @@
         <item>@color/yellow_2</item>
         <item>@color/yellow_3</item>
 
+        <item>@color/purple_500</item>
+        <item>@color/purple_700</item>
 
+        <item>@color/gray_1</item>
+        <item>@color/gray_2</item>
+        <item>@color/gray_3</item>
+        <item>@color/gray_4</item>
+        <item>@color/gray_5</item>
 
 
 

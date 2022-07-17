@@ -44,6 +44,8 @@ interface ReviewerDao {
     @Query("Select * from Subject where subjectId=:subjectId")
     fun getSubjectsById(subjectId: Int): SubjectWithTerms
 
+    @Query("Update Subject set timeStamp= :timeStamp where subjectId=:subjectId")
+    fun updateSubjectTimeStamp(subjectId: Int, timeStamp: Long)
 
     @Transaction
     @Query("Select * from Term where subjectId =:subjectId")
@@ -61,6 +63,9 @@ interface ReviewerDao {
 
     @Transaction @Query("Select * from Item where subjectId =:subjectId")
     fun getAllItems(subjectId: Int):MutableList<Item>
+
+    @Query("Delete from Item where itemId=:itemId")
+    fun deleteItem(itemId: Int)
 
 
 
