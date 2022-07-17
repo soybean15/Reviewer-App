@@ -1,21 +1,18 @@
 package com.devour.reviewerapp.activities
 
-import android.R.attr.label
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.util.Log
-import android.view.View
-import android.view.animation.AnimationUtils
-import android.widget.*
+import android.widget.EditText
+import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
-import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
-import androidx.room.Query
 import com.devour.reviewerapp.R
 import com.devour.reviewerapp.activities.fragments.*
 import com.devour.reviewerapp.data.data_source.AppData
@@ -30,8 +27,7 @@ import com.devour.reviewerapp.model.Topic
 import kotlinx.coroutines.*
 
 
-
-class ItemsActivity : AppCompatActivity(), AddFragmentListener{
+class ItemsActivity : AppCompatActivity(), AddFragmentListener,ViewFragmentListener{
 
     var subjectId:Int = -1
     lateinit var subject:Subject
@@ -52,6 +48,8 @@ class ItemsActivity : AppCompatActivity(), AddFragmentListener{
 
     var items = mutableListOf<Item>()
 
+
+    var itemsWithoutTerms:MutableList<Item> = mutableListOf()
 
 
     private var  subjectWithTerms:SubjectWithTerms?=null
@@ -165,6 +163,7 @@ class ItemsActivity : AppCompatActivity(), AddFragmentListener{
 
 
         sharedPreference()
+        loadItemsWithoutTerms()
 
     }
 
@@ -526,6 +525,27 @@ class ItemsActivity : AppCompatActivity(), AddFragmentListener{
 
 
         reloadFragment(addFragment)
+
+   }
+
+    fun loadItemsWithoutTerms(){
+
+        CoroutineScope(Dispatchers.IO).launch {
+            withContext(Dispatchers.Default) {
+                itemsWithoutTerms = AppData.db.reviewerDao().getItemsWithoutTerms(subjectId)
+                Log.i("SIzeLog", "Size from inside coroutine ${items.size}")
+            }
+
+
+        }
+        Log.i("SIzeLog", "Size from outside coroutine ${items.size}")
+    }
+
+
+
+    override fun getItemWithoutTerm() :MutableList<Item>{
+        loadItemsWithoutTerms()
+        return itemsWithoutTerms
     }
 
 

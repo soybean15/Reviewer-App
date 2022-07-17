@@ -1,5 +1,7 @@
 package com.devour.reviewerapp.activities.fragments
 
+import android.graphics.Color
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -8,10 +10,20 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.devour.reviewerapp.R
 import com.devour.reviewerapp.data.relationship.TermWithTopics
+import com.devour.reviewerapp.data.relationship.TopicWithItems
+import com.devour.reviewerapp.model.Item
+import com.devour.reviewerapp.model.Term
+import com.devour.reviewerapp.model.Topic
 
 class TermsWithTopicAdapter(var termsWithTopic:  MutableList<TermWithTopics> ) :
     RecyclerView.Adapter<TermsWithTopicViewHolder>() {
+
+
+
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TermsWithTopicViewHolder {
+
+        Log.i("CheckTag", "Size ${termsWithTopic.size}")
         return TermsWithTopicViewHolder(
             LayoutInflater.from(parent.context)
                 .inflate(R.layout.fragment_view_term_with_topic, parent, false)
@@ -20,6 +32,9 @@ class TermsWithTopicAdapter(var termsWithTopic:  MutableList<TermWithTopics> ) :
     }
 
     override fun onBindViewHolder(holder: TermsWithTopicViewHolder, position: Int) {
+
+
+
        val termTitleTextView:TextView = holder.itemView.findViewById(R.id.topicTitleTextView)
 
         val topicsWithItemRv:RecyclerView = holder.itemView.findViewById(R.id.topicsWithItemRv)

@@ -7,11 +7,30 @@ import android.widget.TextView
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.devour.reviewerapp.R
+import com.devour.reviewerapp.data.relationship.TermWithTopics
 import com.devour.reviewerapp.data.relationship.TopicWithItems
 import com.devour.reviewerapp.model.Item
 
 class TopicWithItemsAdapter(var topicWithItems: MutableList<TopicWithItems> ) :
     RecyclerView.Adapter<TopicWithItemsViewHolder>() {
+
+    fun getItemWithoutTerms(termsWithTopics: MutableList<TermWithTopics>):MutableList<Item>{
+        val items:MutableList<Item> = mutableListOf()
+
+        for (termWithTopics in termsWithTopics) {
+
+            for (topicWithItems in termWithTopics.topicWithItems){
+                for (item in topicWithItems.items ){
+                    if (item.termId <0){
+                        items.add(item)
+                    }
+                }
+            }
+        }
+
+        return items
+
+    }
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TopicWithItemsViewHolder {
 
         return TopicWithItemsViewHolder(
