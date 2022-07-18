@@ -71,6 +71,10 @@ interface ReviewerDao {
     @Query("Select * from Item where termId=-1 and subjectId=:subjectId")
     fun getItemsWithoutTerms(subjectId: Int):MutableList<Item>
 
+    @Transaction
+    @Query("Select * from Item where topicId=-1 and termId=:termId and subjectId=:subjectId")
+    fun getItemsWithoutTopic(subjectId: Int, termId: Int):MutableList<Item>
+
 
 
 

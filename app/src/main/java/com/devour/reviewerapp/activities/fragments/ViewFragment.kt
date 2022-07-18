@@ -21,6 +21,7 @@ import com.devour.reviewerapp.model.Topic
 
 interface ViewFragmentListener{
     fun getItemWithoutTerm():MutableList<Item>
+    fun getItemWithoutTopic():MutableList<Item>
 }
 
 class ViewFragment (val termsWithTopics: MutableList<TermWithTopics>): Fragment() {
@@ -55,12 +56,12 @@ class ViewFragment (val termsWithTopics: MutableList<TermWithTopics>): Fragment(
         topicWithTermsRv.layoutManager = layoutManager
 
 
-        var _termsWithTopics = termsWithTopics.toMutableList()
+        val _termsWithTopics = termsWithTopics.toMutableList()
         Log.i("SIzeLog", "Size of inside fragment ${termsWithTopics.size}")
         addItemsWithoutTerm(_termsWithTopics)
 
 
-        termsWithTopicAdapter = TermsWithTopicAdapter(_termsWithTopics)
+        termsWithTopicAdapter = TermsWithTopicAdapter(_termsWithTopics,caller)
         topicWithTermsRv.adapter = termsWithTopicAdapter
 
 
@@ -78,18 +79,22 @@ class ViewFragment (val termsWithTopics: MutableList<TermWithTopics>): Fragment(
 
         val itemsWithoutTerms =caller.getItemWithoutTerm()
 
-        Log.i("SIzeLog", "Size ${itemsWithoutTerms.size}")
-        termsWithTopics.add(
-            TermWithTopics(
-                Term("Untitled",-1,System.currentTimeMillis(), Color.BLACK),
-                mutableListOf(
-                    TopicWithItems(
-                        Topic("Untitled",-1,-1,System.currentTimeMillis(), Color.BLACK),
-                        itemsWithoutTerms
+        if (!itemsWithoutTerms.isEmpty()){
+            Log.i("SIzeLog", "Size ${itemsWithoutTerms.size}")
+            termsWithTopics.add(
+                TermWithTopics(
+                    Term("Untitled",-1,System.currentTimeMillis(), Color.BLACK),
+                    mutableListOf(
+                        TopicWithItems(
+                            Topic("Untitled",-1,-1,System.currentTimeMillis(), Color.BLACK),
+                            itemsWithoutTerms
+                        )
                     )
                 )
             )
-        )
+        }
+
+
 
     }
 

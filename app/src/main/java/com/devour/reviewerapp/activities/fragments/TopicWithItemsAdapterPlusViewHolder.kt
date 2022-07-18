@@ -14,23 +14,7 @@ import com.devour.reviewerapp.model.Item
 class TopicWithItemsAdapter(var topicWithItems: MutableList<TopicWithItems> ) :
     RecyclerView.Adapter<TopicWithItemsViewHolder>() {
 
-    fun getItemWithoutTerms(termsWithTopics: MutableList<TermWithTopics>):MutableList<Item>{
-        val items:MutableList<Item> = mutableListOf()
 
-        for (termWithTopics in termsWithTopics) {
-
-            for (topicWithItems in termWithTopics.topicWithItems){
-                for (item in topicWithItems.items ){
-                    if (item.termId <0){
-                        items.add(item)
-                    }
-                }
-            }
-        }
-
-        return items
-
-    }
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TopicWithItemsViewHolder {
 
         return TopicWithItemsViewHolder(
@@ -46,6 +30,8 @@ class TopicWithItemsAdapter(var topicWithItems: MutableList<TopicWithItems> ) :
     }
 
     override fun onBindViewHolder(holder: TopicWithItemsViewHolder, position: Int) {
+
+        var isHidden = true
         val topicTitleTextView: TextView = holder.itemView.findViewById(R.id.topicTitleTextView)
         topicTitleTextView.text = topicWithItems[position].topic.title
 
@@ -54,10 +40,22 @@ class TopicWithItemsAdapter(var topicWithItems: MutableList<TopicWithItems> ) :
         val layoutManager: RecyclerView.LayoutManager = linearLayout
         itemRecyclerView.layoutManager = layoutManager
 
+        itemRecyclerView.visibility= View.GONE
 
 
         val itemAdapter = ItemAdapter(topicWithItems[position].items)
         itemRecyclerView.adapter = itemAdapter
+
+        holder.itemView.setOnClickListener {
+            if(!isHidden){
+                itemRecyclerView.visibility= View.GONE
+                isHidden=  true
+            }else{
+                itemRecyclerView.visibility= View.VISIBLE
+                isHidden=  false
+            }
+        }
+
     }
 
 }

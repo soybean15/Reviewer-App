@@ -49,7 +49,8 @@ class ItemsActivity : AppCompatActivity(), AddFragmentListener,ViewFragmentListe
     var items = mutableListOf<Item>()
 
 
-    var itemsWithoutTerms:MutableList<Item> = mutableListOf()
+    private var itemsWithoutTerms:MutableList<Item> = mutableListOf()
+    private var itemsWithoutTopic:MutableList<Item> = mutableListOf()
 
 
     private var  subjectWithTerms:SubjectWithTerms?=null
@@ -541,7 +542,24 @@ class ItemsActivity : AppCompatActivity(), AddFragmentListener,ViewFragmentListe
         Log.i("SIzeLog", "Size from outside coroutine ${items.size}")
     }
 
+    fun loadItemsWithoutTopic(){
 
+        CoroutineScope(Dispatchers.IO).launch {
+            withContext(Dispatchers.Default) {
+                itemsWithoutTopic = AppData.db.reviewerDao().getItemsWithoutTopic(subjectId,termId)
+                Log.i("SIzeLog", "Size from inside coroutine ${items.size}")
+            }
+
+
+        }
+        Log.i("SIzeLog", "Size from outside coroutine ${items.size}")
+    }
+
+
+    override fun getItemWithoutTopic(): MutableList<Item> {
+        loadItemsWithoutTopic()
+        return itemsWithoutTopic
+    }
 
     override fun getItemWithoutTerm() :MutableList<Item>{
         loadItemsWithoutTerms()

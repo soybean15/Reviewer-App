@@ -7,6 +7,7 @@ import android.widget.TextView
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.devour.reviewerapp.R
+import com.devour.reviewerapp.activities.components.SyntaxHighlighter
 import com.devour.reviewerapp.model.Item
 
 class ItemAdapter(var items :MutableList<Item>):
@@ -19,11 +20,8 @@ class ItemAdapter(var items :MutableList<Item>):
     }
 
     override fun onBindViewHolder(holder: ItemViewHolder, position: Int) {
-        val title :TextView = holder.itemView.findViewById(R.id.itemTitle)
-        val desc:TextView = holder.itemView.findViewById(R.id.itemDesc)
 
-        title.text = items[position].title
-        desc.text = items[position].desc
+        holder.bind(items[position])
     }
 
     override fun getItemCount(): Int {
@@ -34,4 +32,37 @@ class ItemAdapter(var items :MutableList<Item>):
 
 
 
-    class ItemViewHolder(inflater: View) : RecyclerView.ViewHolder(inflater)
+    class ItemViewHolder(inflater: View) : RecyclerView.ViewHolder(inflater){
+        var title :TextView? = null
+        var desc:TextView? =null
+        init {
+            title  = itemView.findViewById(R.id.itemTitle)
+            desc = itemView.findViewById(R.id.itemDesc)
+
+
+
+        }
+
+        fun bind(item: Item){
+
+            val highlight = SyntaxHighlighter.highlight()
+            title!!.text = item.title
+
+
+            val _desc = item.desc
+
+
+            if(  _desc.endsWith("```")){
+
+
+                desc!!.text =  _desc.dropLast(3)
+
+                highlight.setSpan(desc)
+            }else{
+                desc!!.text = _desc
+            }
+
+
+
+        }
+    }

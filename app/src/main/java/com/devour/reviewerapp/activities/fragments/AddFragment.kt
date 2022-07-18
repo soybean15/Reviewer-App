@@ -431,12 +431,17 @@ class AddFragment() : Fragment() {
                 val _desc = item.desc
 
 
-                desc!!.text = _desc
+
 
 
                 if(  _desc.endsWith("```")){
 
+
+                    desc!!.text =  _desc.dropLast(3)
+
                     highlight.setSpan(desc)
+                }else{
+                    desc!!.text = _desc
                 }
 
 
