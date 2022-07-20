@@ -165,6 +165,7 @@ class ItemsActivity : AppCompatActivity(), AddFragmentListener,ViewFragmentListe
 
         sharedPreference()
         loadItemsWithoutTerms()
+        getItemWithoutTopic()
 
     }
 

@@ -34,6 +34,10 @@
     <color name="gray_4">#1B1615</color>
     <color name="gray_5">#2C2A29</color>
 
+
+
+    <color name="item_color">#271E1E</color>
+
     <array name="random_colors">
         <item>@color/blue_1</item>
         <item>@color/blue_2</item>

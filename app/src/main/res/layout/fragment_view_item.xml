@@ -3,7 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="#FAF8F8"
+    android:layout_marginBottom="5dp"
+    android:background="@color/item_color"
     android:orientation="vertical">
 
 
@@ -11,13 +12,15 @@
         android:id="@+id/itemTitle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="TextView"
-        android:textSize="24sp" />
+        android:fontFamily="@font/louis_george_cafe_bold"
+        android:textColor="#FFFEFE"
+        android:textSize="15sp" />
 
     <TextView
         android:id="@+id/itemDesc"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="TextView" />
+        android:fontFamily="@font/louis_george_cafe"
+        android:textColor="#FFFEFE" />
 
 </LinearLayout>
