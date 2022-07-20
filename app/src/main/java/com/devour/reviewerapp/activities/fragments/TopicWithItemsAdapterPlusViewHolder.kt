@@ -4,6 +4,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.devour.reviewerapp.R
@@ -31,30 +32,41 @@ class TopicWithItemsAdapter(var topicWithItems: MutableList<TopicWithItems> ) :
 
     override fun onBindViewHolder(holder: TopicWithItemsViewHolder, position: Int) {
 
-        var isHidden = true
+
         val topicTitleTextView: TextView = holder.itemView.findViewById(R.id.topicTitleTextView)
         topicTitleTextView.text = topicWithItems[position].topic.title
 
         val itemRecyclerView:RecyclerView = holder.itemView.findViewById(R.id.itemRecyclerView)
+        val topicDropDown:View = holder.itemView.findViewById(R.id.topicDropdown)
+
         val linearLayout = LinearLayoutManager(holder.itemView.context)
         val layoutManager: RecyclerView.LayoutManager = linearLayout
         itemRecyclerView.layoutManager = layoutManager
 
-        itemRecyclerView.visibility= View.GONE
 
 
         val itemAdapter = ItemAdapter(topicWithItems[position].items)
         itemRecyclerView.adapter = itemAdapter
 
-        holder.itemView.setOnClickListener {
-            if(!isHidden){
-                itemRecyclerView.visibility= View.GONE
-                isHidden=  true
-            }else{
-                itemRecyclerView.visibility= View.VISIBLE
-                isHidden=  false
+
+        if(topicWithItems[position].items.isNotEmpty()){
+            var isHidden = true
+            itemRecyclerView.visibility= View.GONE
+            topicDropDown.background = ContextCompat.getDrawable(holder.itemView.context, R.drawable.ic_baseline_arrow_drop_down_24)
+            holder.itemView.setOnClickListener {
+                if(!isHidden){
+                    topicDropDown.background = ContextCompat.getDrawable(holder.itemView.context, R.drawable.ic_baseline_arrow_drop_down_24)
+                    itemRecyclerView.visibility= View.GONE
+                    isHidden=  true
+                }else{
+                    topicDropDown.background = ContextCompat.getDrawable(holder.itemView.context, R.drawable.ic_baseline_arrow_drop_up_24)
+                    itemRecyclerView.visibility= View.VISIBLE
+                    isHidden=  false
+                }
             }
+
         }
+
 
     }
 

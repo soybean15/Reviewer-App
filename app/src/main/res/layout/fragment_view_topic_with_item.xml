@@ -4,22 +4,34 @@
     android:layout_height="wrap_content"
     android:orientation="vertical">
 
-    <TextView
-        android:id="@+id/topicTitleTextView"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="#F9FAFB"
-        android:fontFamily="@font/yagiuhf_no2"
-        android:padding="12sp"
-        android:textColor="@color/item_color"
-        android:textSize="18sp" />
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:background="#FAF6F6"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/topicTitleTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight=".8"
+            android:fontFamily="@font/yagiuhf_no2"
+            android:padding="12sp"
+            android:textColor="@color/item_color"
+            android:textSize="18sp" />
+
+        <View
+            android:id="@+id/topicDropdown"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight=".1" />
+    </LinearLayout>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/itemRecyclerView"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="10dp"
-        android:layout_marginEnd="10dp" />
+        android:layout_height="wrap_content" />
 
 
 </LinearLayout>

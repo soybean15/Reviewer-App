@@ -22,9 +22,11 @@ import com.devour.reviewerapp.model.Topic
 interface ViewFragmentListener{
     fun getItemWithoutTerm():MutableList<Item>
     fun getItemWithoutTopic():MutableList<Item>
+    fun getTermsWithTopics():MutableList<TermWithTopics>
+
 }
 
-class ViewFragment (val termsWithTopics: MutableList<TermWithTopics>): Fragment() {
+class ViewFragment (): Fragment() {
 
     lateinit var termsWithTopicAdapter: TermsWithTopicAdapter
     lateinit var caller: ViewFragmentListener
@@ -50,11 +52,12 @@ class ViewFragment (val termsWithTopics: MutableList<TermWithTopics>): Fragment(
         val context = activity as Context
 
 
+
         val linearLayout = LinearLayoutManager(context)
         val layoutManager: RecyclerView.LayoutManager = linearLayout
 
         topicWithTermsRv.layoutManager = layoutManager
-
+        val termsWithTopics = caller.getTermsWithTopics()
 
         val _termsWithTopics = termsWithTopics.toMutableList()
         Log.i("SIzeLog", "Size of inside fragment ${termsWithTopics.size}")
@@ -68,12 +71,7 @@ class ViewFragment (val termsWithTopics: MutableList<TermWithTopics>): Fragment(
         return fragment
     }
 
-    companion object {
 
-        fun newInstance(termsWithTopics:  MutableList<TermWithTopics>) :ViewFragment{
-            return ViewFragment(termsWithTopics)
-        }
-    }
 
     fun addItemsWithoutTerm(termsWithTopics: MutableList<TermWithTopics>){
 

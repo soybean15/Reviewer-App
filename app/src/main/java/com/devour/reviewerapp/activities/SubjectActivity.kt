@@ -607,9 +607,24 @@ class SubjectActivity : AppCompatActivity() ,OnSubjectClickListener{
             android.R.color.holo_red_light,
             object : SwipeHelper.UnderlayButtonClickListener {
                 override fun onClick() {
-                    _position=position+1
+                    val builder = AlertDialog.Builder(this@SubjectActivity)
 
-                    deleteSubject(position)
+                    builder.setTitle("Delete Subject")
+                    builder.setMessage("Are you sure you want to delete this subject?")
+
+                    builder.setPositiveButton("Delete") { dialogue, which ->
+                        _position = position + 1
+
+                        deleteSubject(position)
+                    }
+
+                    builder.setNegativeButton("Cancel") {dialogue, which->
+
+
+                    }
+
+                    val dialouge : AlertDialog =builder.create()
+                    dialouge.show()
 
 
                 }
@@ -637,6 +652,8 @@ class SubjectActivity : AppCompatActivity() ,OnSubjectClickListener{
                         timeStamp,
                         subjectId
                     )
+
+
 
                 }
             })

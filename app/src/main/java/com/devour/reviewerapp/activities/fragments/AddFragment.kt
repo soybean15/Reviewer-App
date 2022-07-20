@@ -210,11 +210,7 @@ class AddFragment() : Fragment() {
 
 
 
-    companion object {
-        fun newInstance(): AddFragment {
-            return AddFragment()
-        }
-    }
+
 
 
 

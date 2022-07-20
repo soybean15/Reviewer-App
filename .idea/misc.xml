@@ -3,7 +3,9 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="..\:/Users/PC/AndroidStudioProjects/ReviewerApp/app/src/main/res/drawable-v24/rounded_corner_shape.xml" value="0.196" />
         <entry key="..\:/Users/PC/AndroidStudioProjects/ReviewerApp/app/src/main/res/drawable/ic_baseline_add_24.xml" value="0.3675" />
+        <entry key="..\:/Users/PC/AndroidStudioProjects/ReviewerApp/app/src/main/res/drawable/ic_baseline_arrow_drop_down_24.xml" value="0.196" />
         <entry key="..\:/Users/PC/AndroidStudioProjects/ReviewerApp/app/src/main/res/drawable/ic_baseline_content_copy_24.xml" value="0.2275" />
         <entry key="..\:/Users/PC/AndroidStudioProjects/ReviewerApp/app/src/main/res/drawable/ic_baseline_more_vert_24.xml" value="0.196" />
         <entry key="..\:/Users/PC/AndroidStudioProjects/ReviewerApp/app/src/main/res/drawable/ic_baseline_search_24.xml" value="0.3675" />
@@ -29,7 +31,7 @@
         <entry key="..\:/Users/PC/AndroidStudioProjects/ReviewerApp/app/src/main/res/layout/fragment_view_item.xml" value="0.365625" />
         <entry key="..\:/Users/PC/AndroidStudioProjects/ReviewerApp/app/src/main/res/layout/fragment_view_parent_item.xml" value="0.2203125" />
         <entry key="..\:/Users/PC/AndroidStudioProjects/ReviewerApp/app/src/main/res/layout/fragment_view_term_with_topic.xml" value="0.36666666666666664" />
-        <entry key="..\:/Users/PC/AndroidStudioProjects/ReviewerApp/app/src/main/res/layout/fragment_view_topic_with_item.xml" value="0.22135416666666666" />
+        <entry key="..\:/Users/PC/AndroidStudioProjects/ReviewerApp/app/src/main/res/layout/fragment_view_topic_with_item.xml" value="0.25" />
         <entry key="..\:/Users/PC/AndroidStudioProjects/ReviewerApp/app/src/main/res/layout/item_layout.xml" value="0.19791666666666666" />
         <entry key="..\:/Users/PC/AndroidStudioProjects/ReviewerApp/app/src/main/res/layout/item_row.xml" value="0.25" />
         <entry key="..\:/Users/PC/AndroidStudioProjects/ReviewerApp/app/src/main/res/layout/recyclerview_add_item.xml" value="0.365625" />

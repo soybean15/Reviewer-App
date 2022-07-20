@@ -13,6 +13,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.fragment.app.Fragment
+
 import com.devour.reviewerapp.R
 import com.devour.reviewerapp.activities.fragments.*
 import com.devour.reviewerapp.data.data_source.AppData
@@ -28,6 +29,9 @@ import kotlinx.coroutines.*
 
 
 class ItemsActivity : AppCompatActivity(), AddFragmentListener,ViewFragmentListener{
+
+
+
 
     var subjectId:Int = -1
     lateinit var subject:Subject
@@ -152,8 +156,8 @@ class ItemsActivity : AppCompatActivity(), AddFragmentListener,ViewFragmentListe
 
         refresh()
 
-        viewFragment = ViewFragment.newInstance(subjectWithTerms!!.termsWithTopics)
-        addFragment= AddFragment.newInstance()
+        viewFragment = ViewFragment()
+        addFragment= AddFragment()
         searchFragment = SearchFragment()
 
 
@@ -473,6 +477,7 @@ class ItemsActivity : AppCompatActivity(), AddFragmentListener,ViewFragmentListe
     }
 
     override fun onTermSelectedItem(position: Int) {
+        refresh()
         termPosition = position
 
 
@@ -565,6 +570,10 @@ class ItemsActivity : AppCompatActivity(), AddFragmentListener,ViewFragmentListe
     override fun getItemWithoutTerm() :MutableList<Item>{
         loadItemsWithoutTerms()
         return itemsWithoutTerms
+    }
+
+    override fun getTermsWithTopics(): MutableList<TermWithTopics> {
+        return subjectWithTerms!!.termsWithTopics
     }
 
 
