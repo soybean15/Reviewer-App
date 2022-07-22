@@ -623,7 +623,7 @@ class SubjectActivity : AppCompatActivity() ,OnSubjectClickListener{
 
                     }
 
-                    val dialouge : AlertDialog =builder.create()
+                    val dialouge : AlertDialog = builder.create()
                     dialouge.show()
 
 

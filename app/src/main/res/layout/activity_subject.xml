@@ -48,7 +48,7 @@
             android:background="@drawable/rounded_corner_textview"
             android:drawableLeft="@drawable/ic_baseline_search_24"
             android:ems="10"
-            android:hint="Search"
+            android:hint="@string/search"
             android:inputType="textPersonName"
             android:textSize="15sp"
             tools:ignore="TouchTargetSizeCheck" />

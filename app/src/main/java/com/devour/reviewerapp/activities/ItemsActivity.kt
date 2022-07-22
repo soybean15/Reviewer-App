@@ -218,7 +218,7 @@ class ItemsActivity : AppCompatActivity(), AddFragmentListener,ViewFragmentListe
 
 
 
-    fun addTerms(){
+    fun addTerms(str: String){
         val builder = AlertDialog.Builder(this)
         builder.setTitle("New Term")
         builder.setMessage("Enter Term Name")
@@ -227,38 +227,38 @@ class ItemsActivity : AppCompatActivity(), AddFragmentListener,ViewFragmentListe
         builder.setView(myInput)
 
         builder.setPositiveButton("Save") {dialogue, which->
-            val newTerms = Term(myInput.text.toString(), subjectId,System.currentTimeMillis(),subject.color)
+            if (str.isBlank()){
+                Toast.makeText(this@ItemsActivity, "Term Name is Empty",Toast.LENGTH_SHORT).show()
+            }else{
+                val newTerms = Term(myInput.text.toString(), subjectId,System.currentTimeMillis(),subject.color)
 
-            CoroutineScope(Dispatchers.IO).launch {
+                CoroutineScope(Dispatchers.IO).launch {
 
-                awaitAll(
-                    async { insertTerms(newTerms) },
-                    async {
-                        subjectWithTerms = AppData.db.reviewerDao().getSubjectsById(subjectId)
-                    })
-                subjectWithTerms = AppData.db.reviewerDao().getSubjectsById(subjectId)
+                    awaitAll(
+                        async { insertTerms(newTerms) },
+                        async {
+                            subjectWithTerms = AppData.db.reviewerDao().getSubjectsById(subjectId)
+                        })
+                    subjectWithTerms = AppData.db.reviewerDao().getSubjectsById(subjectId)
 
-                withContext(Dispatchers.IO){
-
+                    withContext(Dispatchers.IO){
+                    }
 
                 }
+                termPosition = subjectWithTerms!!.termsWithTopics.size
+                addSharedPref(subject.name+subjectId, termPosition)
+
+                // updateId(termPosition-1)
+                Log.i("termlog", "Add term${subject.name+subjectId}")
+
+                updateSubjectTimeStamp()
+                reloadFragment(addFragment)
 
 
 
 
 
             }
-            termPosition = subjectWithTerms!!.termsWithTopics.size
-            addSharedPref(subject.name+subjectId, termPosition)
-
-           // updateId(termPosition-1)
-            Log.i("termlog", "Add term${subject.name+subjectId}")
-
-            updateSubjectTimeStamp()
-            reloadFragment(addFragment)
-
-
-
 
 
         }
@@ -279,7 +279,7 @@ class ItemsActivity : AppCompatActivity(), AddFragmentListener,ViewFragmentListe
 
 
 
-    fun addTopic(){
+    fun addTopic(str: String){
         val builder = AlertDialog.Builder(this)
         builder.setTitle("New Topic")
         builder.setMessage("Enter Topic Name")
@@ -289,42 +289,48 @@ class ItemsActivity : AppCompatActivity(), AddFragmentListener,ViewFragmentListe
 
         builder.setPositiveButton("Save") {dialogue, which->
 
-            if(subjectWithTerms!!.termsWithTopics.isEmpty()){
-                Toast.makeText(this, "Terms is empty",Toast.LENGTH_SHORT).show()
-            }else {
+            if(str.isBlank()){
+                Toast.makeText(this@ItemsActivity, "Topic Name is Empty",Toast.LENGTH_SHORT).show()
+            }else{
+                if(subjectWithTerms!!.termsWithTopics.isEmpty()){
+                    Toast.makeText(this, "Terms is empty",Toast.LENGTH_SHORT).show()
+                }else {
 
 
-                val newTopic = Topic(
-                    myInput.text.toString(),
-                    subjectId = subjectId,
-                    termId = subjectWithTerms!!.termsWithTopics[termPosition].term.termId,
-                    timeStamp = System.currentTimeMillis(),
-                    color = subject.color
-                )
+                    val newTopic = Topic(
+                        myInput.text.toString(),
+                        subjectId = subjectId,
+                        termId = subjectWithTerms!!.termsWithTopics[termPosition].term.termId,
+                        timeStamp = System.currentTimeMillis(),
+                        color = subject.color
+                    )
 
-                CoroutineScope(Dispatchers.IO).launch {
-
-
-                    awaitAll(
-                        async { insertTopic(newTopic) },
-                        async {
-                            subjectWithTerms = AppData.db.reviewerDao().getSubjectsById(subjectId)
-                        })
+                    CoroutineScope(Dispatchers.IO).launch {
 
 
-                    subjectWithTerms = AppData.db.reviewerDao().getSubjectsById(subjectId)
+                        awaitAll(
+                            async { insertTopic(newTopic) },
+                            async {
+                                subjectWithTerms = AppData.db.reviewerDao().getSubjectsById(subjectId)
+                            })
 
+
+                        subjectWithTerms = AppData.db.reviewerDao().getSubjectsById(subjectId)
+
+
+                    }
+
+                    topicPosition = subjectWithTerms!!.termsWithTopics[termPosition].topicWithItems.size
+                    //updateTopicId(topicPosition -1)
+                    addSharedPref(subject.name+subjectId+termId, topicPosition)
+
+
+                    Log.i("positionlog", "from Main: ${topicPosition} ")
+                    updateSubjectTimeStamp()
+                    reloadFragment(addFragment)
 
                 }
 
-                topicPosition = subjectWithTerms!!.termsWithTopics[termPosition].topicWithItems.size
-                //updateTopicId(topicPosition -1)
-                addSharedPref(subject.name+subjectId+termId, topicPosition)
-
-
-                Log.i("positionlog", "from Main: ${topicPosition} ")
-                updateSubjectTimeStamp()
-                reloadFragment(addFragment)
 
             }
 
@@ -345,24 +351,24 @@ class ItemsActivity : AppCompatActivity(), AddFragmentListener,ViewFragmentListe
 
 
 
-     fun firstTimeOpening(){
-
-       //  Log.i("myLogger", "${termWithTopics!!.size} ${termWithTopics!![0].term.name}")
-
-        if(subjectWithTerms!!.termsWithTopics.isEmpty()){
-
-            addTerms()
-        }else{
-
-            CoroutineScope(Dispatchers.IO).launch {
-
-                subjectWithTerms  = AppData.db.reviewerDao().getSubjectsById(subjectId)
-
-            }
-        }
-
-    }
-
+//     fun firstTimeOpening(){
+//
+//       //  Log.i("myLogger", "${termWithTopics!!.size} ${termWithTopics!![0].term.name}")
+//
+//        if(subjectWithTerms!!.termsWithTopics.isEmpty()){
+//
+//            addTerms()
+//        }else{
+//
+//            CoroutineScope(Dispatchers.IO).launch {
+//
+//                subjectWithTerms  = AppData.db.reviewerDao().getSubjectsById(subjectId)
+//
+//            }
+//        }
+//
+//    }
+//
 
     fun addNewItem(item: Item){
 
@@ -464,14 +470,15 @@ class ItemsActivity : AppCompatActivity(), AddFragmentListener,ViewFragmentListe
     }
 
 
-    override fun onAddTermClick() {
-        addTerms()
+    override fun onAddTermClick(str: String) {
+
+        addTerms(str)
 
     }
 
-    override fun onAddTopicClick() {
+    override fun onAddTopicClick(str: String) {
 
-            addTopic()
+            addTopic(str)
 
 
     }

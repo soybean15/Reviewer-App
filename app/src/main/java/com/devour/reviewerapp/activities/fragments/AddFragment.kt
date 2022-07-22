@@ -28,8 +28,8 @@ interface AddFragmentListener {
     fun addItems(title: String, desc: String)
     fun loadTermSpinner(): MutableList<TermWithTopics>
     fun loadTopicSpinner(): MutableList<TopicWithItems>
-    fun onAddTermClick()
-    fun onAddTopicClick()
+    fun onAddTermClick(str:String)
+    fun onAddTopicClick(str:String)
     fun getTermPos(): Int
     fun getTopicPos():Int
 
@@ -152,13 +152,15 @@ class AddFragment() : Fragment() {
 
 
         addTermButton.setOnClickListener {
-            caller.onAddTermClick()
+            val str = titleEditTextView.text.toString()
+            caller.onAddTermClick(str)
 
 
         }
 
         addTopicButton.setOnClickListener {
-            caller.onAddTopicClick()
+            val str = descriptionEditTextView.text.toString()
+            caller.onAddTopicClick(str)
 
         }
 
