@@ -517,6 +517,7 @@ class ItemsActivity : AppCompatActivity(), AddFragmentListener,ViewFragmentListe
         val newItem = Item(title,desc,topicId,termId,subjectId,System.currentTimeMillis(),subject.color )
         addNewItem(newItem)
 
+
         updateSubjectTimeStamp()
         items.clear()
         items.sortBy { it.timeStamp }

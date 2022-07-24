@@ -26,7 +26,7 @@ class SyntaxHighlighter {
                     Color.parseColor("#ad692d")
                 ),
                 ColorScheme(
-                    //
+
                     Pattern.compile("(\\blong\\b)|(\\breturn\\b)|(\\bvoid\\b)|(\\bpublic\\b)|(\\bstatic\\b)|(\\bfloat\\b)|(\\bint\\b)|(\\bboolean\\b)|(\\bnull\\b)|(\\bvar\\b)|(\\bchar\\b)|(\\bdouble\\b)|(\\bif\\b)|(\\boverride\\b)|(\\bfun\\b)|(\\bval\\b)|(\\belse\\b)|(\\belif\\b)|(\\bdo\\b)|(\\bwhile\\b)|(\\bfor\\b)"),
                     Color.parseColor("#ad692d")
                 ),
@@ -35,9 +35,6 @@ class SyntaxHighlighter {
                     Color.parseColor("#fc2003")
                 ),
                 ColorScheme(
-                    Pattern.compile("\"(.*?)\""),
-                    Color.parseColor("#fca903")
-                ),ColorScheme(
                     Pattern.compile("(//.+)"),
                     Color.parseColor("#5c5756")
                 ),
@@ -45,6 +42,27 @@ class SyntaxHighlighter {
                     Pattern.compile("(#.+)"),
                     Color.parseColor("#0b7a34")
                 ),
+                ColorScheme(
+                    Pattern.compile("[a-zA-Z][a-zA-Z0-9]+\\("),
+                    //Pattern.compile("(\\w*[(]\\b)"),
+                    Color.parseColor("#c4a2db")
+                ),ColorScheme(
+                    Pattern.compile("[(]"),
+                    Color.parseColor("#fffdfa")
+                ),
+                ColorScheme(
+
+                    Pattern.compile("[0-9]+"),
+                    Color.parseColor("#3886f2")
+                ),
+                ColorScheme(
+                    Pattern.compile("[0-9]+\\.[0-9]+"),
+                   // Pattern.compile("[0-9]+"),
+                    Color.parseColor("#3886f2")
+                ),  ColorScheme(
+                    Pattern.compile("\"(.*?)\""),
+                    Color.parseColor("#fca903")
+                )
 
 
             //#5c5756

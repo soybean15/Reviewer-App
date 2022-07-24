@@ -14,7 +14,15 @@
         android:layout_height="wrap_content"
         android:fontFamily="@font/louis_george_cafe_bold"
         android:textColor="#FFFEFE"
-        android:textSize="15sp" />
+        android:textSize="18sp" />
+
+    <View
+        android:id="@+id/view3"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginEnd="10dp"
+        android:background="#634949" />
 
     <TextView
         android:id="@+id/itemDesc"
