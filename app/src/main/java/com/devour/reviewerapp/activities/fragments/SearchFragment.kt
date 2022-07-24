@@ -1,10 +1,10 @@
 package com.devour.reviewerapp.activities.fragments
 
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.devour.reviewerapp.R
@@ -19,6 +19,9 @@ class SearchFragment(listener: SearchFragmentListener) : Fragment() {
 
     lateinit var searchItemAdapter: SearchItemAdapter
     var items = mutableListOf<Item>()
+
+    var map: HashMap<String, MutableList<String>> = HashMap()
+
     val caller = listener
 
     override fun onCreateView(
@@ -36,13 +39,22 @@ class SearchFragment(listener: SearchFragmentListener) : Fragment() {
 
         items = caller.onGetAllItems()
 
-
+        map= convertToHashMap(items)
         searchItemAdapter = SearchItemAdapter(items)
         itemSearchRv.adapter = searchItemAdapter
 
         return fragment
     }
 
+    fun convertToHashMap(items: MutableList<Item>):HashMap<String,MutableList<String>>{
+        val map : HashMap<String,MutableList<String>> = HashMap()
+        for (item in items){
+            val descList = item.desc.split("[\\\\s,.?:-]")
+            map[item.title] = descList.toMutableList()
+        }
+        return map
+
+    }
 
 
 
