@@ -11,10 +11,20 @@
     android:orientation="vertical"
     tools:context=".activities.fragments.SearchFragment">
 
-    <androidx.recyclerview.widget.RecyclerView
+    <TextView
+        android:id="@+id/resultCountTextView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_weight=".9" />
+        android:text="TextView"
+        android:textSize="20sp" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/itemSearchRv"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight=".9"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"

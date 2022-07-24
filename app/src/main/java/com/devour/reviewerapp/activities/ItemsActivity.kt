@@ -28,7 +28,7 @@ import com.devour.reviewerapp.model.Topic
 import kotlinx.coroutines.*
 
 
-class ItemsActivity : AppCompatActivity(), AddFragmentListener,ViewFragmentListener{
+class ItemsActivity : AppCompatActivity(), AddFragmentListener,ViewFragmentListener,SearchFragmentListener{
 
 
 
@@ -158,7 +158,7 @@ class ItemsActivity : AppCompatActivity(), AddFragmentListener,ViewFragmentListe
 
         viewFragment = ViewFragment()
         addFragment= AddFragment()
-        searchFragment = SearchFragment()
+        searchFragment = SearchFragment(this)
 
 
         setFragment()
@@ -582,6 +582,10 @@ class ItemsActivity : AppCompatActivity(), AddFragmentListener,ViewFragmentListe
 
     override fun getTermsWithTopics(): MutableList<TermWithTopics> {
         return subjectWithTerms!!.termsWithTopics
+    }
+
+    override fun onGetAllItems(): MutableList<Item> {
+        return items
     }
 
 
